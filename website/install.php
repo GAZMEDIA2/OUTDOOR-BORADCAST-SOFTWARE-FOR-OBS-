@@ -23,6 +23,7 @@ $tables = [
     "CREATE TABLE IF NOT EXISTS reg_codes (id $id, code VARCHAR(24) NOT NULL UNIQUE, plan VARCHAR(20) NOT NULL, days INT NOT NULL,
         issued_to INT NOT NULL DEFAULT 0, payment_id INT NOT NULL DEFAULT 0, status VARCHAR(10) NOT NULL, note VARCHAR(255) NOT NULL DEFAULT '',
         created_at INT NOT NULL, used_at INT NOT NULL DEFAULT 0, used_by INT NOT NULL DEFAULT 0)$opts",
+    "CREATE TABLE IF NOT EXISTS settings (k VARCHAR(50) NOT NULL PRIMARY KEY, v VARCHAR(255) NOT NULL)$opts",
     "CREATE TABLE IF NOT EXISTS login_attempts (id $id, k VARCHAR(200) NOT NULL, at INT NOT NULL)$opts",
 ];
 foreach ($tables as $sql) db()->exec($sql);

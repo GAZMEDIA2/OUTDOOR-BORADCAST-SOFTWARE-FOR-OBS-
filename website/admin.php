@@ -54,6 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $temp = substr(strtr(base64_encode(random_bytes(12)), '+/=', 'xyz'), 0, 14);
             q('UPDATE users SET pass_hash = ? WHERE id = ?', [password_hash($temp, PASSWORD_DEFAULT), $id]);
             break;
+        case 'rate':
+            $r = (float)str_replace(',', '', (string)($_POST['rate'] ?? ''));
+            if ($r >= 1 && $r <= 100000) { set_setting('usd_rate', (string)$r); flash('Exchange rate set: 1 USD = ' . number_format($r, 2) . ' ' . strtoupper($CFG['paystack_currency']) . '.'); }
+            else flash('Enter a valid rate.', 'err');
+            break;
         case 'newcode':
             $plan = (string)($_POST['plan'] ?? '');
             $days = max(1, min(3650, (int)($_POST['days'] ?? 365)));
@@ -169,7 +174,7 @@ function status_pill(?array $l): string {
   <div class="scroll"><table><tr><th>Date</th><th>Customer</th><th>Plan</th><th>Amount</th><th>Method</th><th>Status</th><th>Customer's note / reference</th><th></th></tr>
   <?php foreach ($rows as $p): ?>
     <tr><td><?= date('j M Y H:i', (int)$p['created_at']) ?></td><td><a href="admin.php?user=<?= (int)$p['user_id'] ?>"><?= e($p['name']) ?></a><br><small><?= e($p['email']) ?></small></td>
-    <td><?= e(plan_name($p['plan'])) ?></td><td><?= money((float)$p['amount_usd']) ?></td><td><?= e($p['method'] === 'paystack' ? 'Paystack' : 'Manual') ?></td>
+    <td><?= e(plan_name($p['plan'])) ?></td><td><?= money((float)$p['amount_usd']) ?></td><td><?= e($p['method'] === 'paystack' ? 'Paystack' : 'Other') ?></td>
     <td><span class="pill <?= $p['status'] === 'paid' ? 'on' : (in_array($p['status'], ['pending', 'review'], true) ? 'wait' : 'off') ?>"><?= e($p['status']) ?></span></td>
     <td><?= e($p['note']) ?><br><small class="muted"><?= e($p['reference']) ?></small></td>
     <td><?php if (in_array($p['status'], ['pending', 'review'], true)): ?>
@@ -182,7 +187,7 @@ function status_pill(?array $l): string {
 <?php elseif ($tab === 'codes'):
     $rows = q('SELECT c.*, a.email AS to_email, b.email AS by_email FROM reg_codes c LEFT JOIN users a ON a.id = c.issued_to LEFT JOIN users b ON b.id = c.used_by ORDER BY c.id DESC LIMIT 500')->fetchAll(); ?>
   <form method="post" class="card" style="max-width:520px"><?= csrf_field() ?><input type="hidden" name="back" value="admin.php?tab=codes"><input type="hidden" name="act" value="newcode">
-    <h3>Create a registration code</h3><p>For cash sales, gifts or replacements.</p>
+    <h3>Create a registration code</h3><p>For gifts, partners or replacements. Paid customers get their code automatically from Paystack.</p>
     <label>Plan<select name="plan"><option value="standard">Standard</option><option value="pro">Pro</option><option value="trial">Free trial</option></select></label>
     <label>Length (days)<input type="number" name="days" value="365" min="1" max="3650"></label>
     <label>For customer email (optional: leave empty for a code anyone can use once)<input type="email" name="email"></label>
@@ -216,7 +221,10 @@ function status_pill(?array $l): string {
   <div class="grid">
     <div class="card"><h3><?= $users ?></h3><p>Customers (<?= $new7 ?> new this week)</p></div>
     <div class="card"><h3><?= $trial ?> / <?= $std ?> / <?= $pro ?></h3><p>On trial / Standard / Pro</p></div>
-    <div class="card"><h3><?= money($rev) ?></h3><p>Total paid</p></div>
+    <div class="card"><h3><?= money($rev) ?></h3><p>Total paid (USD)</p></div>
+    <div class="card"><h3><?= number_format(usd_rate(), 2) ?></h3><p><?= e(strtoupper($CFG['paystack_currency'])) ?> per USD at checkout</p>
+      <form method="post" class="row" style="margin-top:8px"><?= csrf_field() ?><input type="hidden" name="act" value="rate"><input type="hidden" name="back" value="admin.php">
+        <input name="rate" value="<?= e(usd_rate()) ?>" style="max-width:120px;margin:0"><button class="btn small">Update rate</button></form></div>
     <div class="card"><h3><?= $pending ?></h3><p>Payments waiting for you <?= $pending ? '· <a href="admin.php?tab=payments">review</a>' : '' ?></p></div>
     <div class="card"><h3><?= $online ?></h3><p>Computers online now</p></div>
   </div>

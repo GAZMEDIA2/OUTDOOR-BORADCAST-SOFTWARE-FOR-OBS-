@@ -53,7 +53,8 @@ $P = $CFG['plans'];
 
   <section id="pricing">
     <h2>Pricing</h2>
-    <p class="muted">Paid yearly. No monthly fees.</p>
+    <p class="muted">Prices in US dollars, paid yearly. No monthly fees.</p>
+    <p class="cards-line">We accept all cards: <b>Visa</b>, <b>Mastercard</b>, <b>Verve</b> and <b>American Express</b>, from any country. Secure checkout by Paystack.</p>
     <div class="price">
       <div class="card">
         <h3>Free trial</h3>

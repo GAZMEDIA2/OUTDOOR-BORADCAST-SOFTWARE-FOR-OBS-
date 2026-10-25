@@ -34,13 +34,12 @@ return [
     'offline_days' => 7,
 
     // Paystack (https://dashboard.paystack.com > Settings > API Keys & Webhooks).
-    // Leave the secret key empty to offer manual payment only.
+    // All payments go through Paystack. Prices and records are in US dollars;
+    // customers are charged the naira equivalent at usd_rate (change it any time in the admin page).
     // No Paystack webhook is needed: Van Link confirms each payment with Paystack directly
     // (so your existing webhook for other sites stays as it is).
     'paystack_secret_key' => '',          // sk_live_... (or sk_test_... while testing)
     'paystack_currency'   => 'NGN',       // the currency your Paystack account charges in
     'usd_rate'            => 1600,        // how many NGN per 1 USD when charging (update as needed)
 
-    // Manual payment details shown to customers (mobile money / bank).
-    'manual_payment_text' => "Mobile Money: [number and name]\nBank: [bank, account name, account number]\nUse your email address as the payment reference.",
 ];

@@ -27,18 +27,20 @@ function paystack_call(string $method, string $path, ?array $body = null): array
 function paystack_amount(string $plan): int {
     global $CFG;
     $usd = (int)plan_info($plan)['price'];
-    $rate = strtoupper($CFG['paystack_currency']) === 'USD' ? 1 : (float)$CFG['usd_rate'];
+    $rate = strtoupper($CFG['paystack_currency']) === 'USD' ? 1 : usd_rate();
     return (int)round($usd * $rate * 100);
 }
 
 function paystack_start(array $user, string $plan): string {
     global $CFG;
     $ref = 'VL-' . $user['id'] . '-' . bin2hex(random_bytes(6));
-    q('INSERT INTO payments (user_id, plan, amount_usd, method, reference, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [$user['id'], $plan, (int)plan_info($plan)['price'], 'paystack', $ref, 'pending', time()]);
+    $charged = paystack_amount($plan);
+    q('INSERT INTO payments (user_id, plan, amount_usd, method, reference, status, note, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [$user['id'], $plan, (int)plan_info($plan)['price'], 'paystack', $ref, 'pending',
+         'Charged ' . number_format($charged / 100) . ' ' . strtoupper($CFG['paystack_currency']) . ' at ' . usd_rate() . ' per USD', time()]);
     $r = paystack_call('POST', '/transaction/initialize', [
         'email' => $user['email'],
-        'amount' => paystack_amount($plan),
+        'amount' => $charged,
         'currency' => strtoupper($CFG['paystack_currency']),
         'reference' => $ref,
         'callback_url' => site_url('paystack-callback.php'),
@@ -62,7 +64,8 @@ function paystack_confirm(string $ref): string {
     $d = $r['data'] ?? [];
     $st = $d['status'] ?? '';
     if ($st === 'success') {
-        $okAmount = (int)($d['amount'] ?? 0) >= paystack_amount($p['plan']);
+        $expected = preg_match('/Charged ([\d,]+) /', $p['note'], $m) ? (int)str_replace(',', '', $m[1]) * 100 : paystack_amount($p['plan']);
+        $okAmount = (int)($d['amount'] ?? 0) >= $expected - 100; // allow rounding
         $okCur = strtoupper((string)($d['currency'] ?? '')) === strtoupper($CFG['paystack_currency']);
         if (!$okAmount || !$okCur) {
             q('UPDATE payments SET status = ?, note = ? WHERE id = ?', ['review', 'Amount or currency did not match; check in Paystack', $p['id']]);

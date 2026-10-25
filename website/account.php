@@ -109,7 +109,7 @@ page_head('My account', $user);
     <div class="scroll" style="margin-top:12px"><table><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Method</th><th>Status</th></tr>
     <?php foreach ($payments as $p): ?>
       <tr><td><?= fmt_date($p['created_at']) ?></td><td><?= e(plan_name($p['plan'])) ?></td><td><?= money((float)$p['amount_usd']) ?></td>
-      <td><?= e($p['method'] === 'paystack' ? 'Paystack' : 'Mobile money / bank') ?></td>
+      <td><?= e($p['method'] === 'paystack' ? 'Paystack' : 'Other') ?></td>
       <td><span class="pill <?= $p['status'] === 'paid' ? 'on' : ($p['status'] === 'pending' ? 'wait' : 'off') ?>"><?= e(['paid' => 'Paid', 'pending' => 'Waiting', 'failed' => 'Failed', 'rejected' => 'Rejected', 'review' => 'Being checked'][$p['status']] ?? $p['status']) ?></span></td></tr>
     <?php endforeach ?></table></div><?php endif ?>
   </section>

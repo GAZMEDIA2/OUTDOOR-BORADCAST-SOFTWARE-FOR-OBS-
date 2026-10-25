@@ -235,3 +235,19 @@ function issue_code_for_payment(array $p): string {
     if ($u) send_code_email($u, $code, $p['plan']);
     return $code;
 }
+
+// ---------- settings changed from the admin page ----------
+function setting(string $k, ?string $default = null): ?string {
+    try { $r = one('SELECT v FROM settings WHERE k = ?', [$k]); } catch (Throwable $e) { return $default; }
+    return $r ? $r['v'] : $default;
+}
+function set_setting(string $k, string $v): void {
+    if (one('SELECT k FROM settings WHERE k = ?', [$k])) q('UPDATE settings SET v = ? WHERE k = ?', [$v, $k]);
+    else q('INSERT INTO settings (k, v) VALUES (?, ?)', [$k, $v]);
+}
+// Naira (Paystack currency) per US dollar: admin setting, else config.php.
+function usd_rate(): float {
+    global $CFG;
+    $r = (float)setting('usd_rate', (string)($CFG['usd_rate'] ?? 1600));
+    return $r > 0 ? $r : 1600.0;
+}

@@ -1,5 +1,5 @@
 """End-to-end test of the Van Link website: install, admin, sign-up, trial,
-app API, manual payment, admin approval, registration code, limits, security."""
+app API, Paystack-only buy page, exchange rate, registration code, limits, security."""
 import base64, json, re, sys, urllib.request, urllib.parse, http.cookiejar, subprocess
 
 BASE = "http://127.0.0.1:8899/"
@@ -90,14 +90,21 @@ st, r = api("check.php", {"token": tok, "live_seconds": 99999})
 ok, p = verify(r["licence"])
 check("trial time report capped", p["trial_seconds_left_today"] == 300)
 
-# --- manual payment -> admin approve -> code -> redeem in app
-_, h = cust.post("buy.php", {"plan": "pro", "how": "manual", "note": "MoMo 677000000 txn ABC123"}, "buy.php?plan=pro")
-check("manual payment recorded", "Thanks!" in h)
-_, h = owner.get("admin.php?tab=payments")
-pid = re.search(r'name="id" value="(\d+)"><input type="hidden" name="act" value="approve"', h).group(1)
-_, h = owner.post("admin.php", {"act": "approve", "id": pid, "back": "admin.php?tab=payments"}, "admin.php?tab=payments")
-m = re.search(r"Registration code (VLK-[A-Z0-9-]{14})", h)
-check("admin approval issues a code", bool(m))
+# --- buy page: dollars, all cards, Paystack only (no manual option)
+_, h = cust.get("buy.php?plan=pro")
+check("buy page in dollars, all cards, no manual option",
+      "$1,900" in h and "We accept all cards" in h and 'name="how"' not in h and "MoMo" not in h)
+_, h = cust.post("buy.php", {"plan": "pro"}, "buy.php?plan=pro")
+check("no Paystack key -> payment not started", "being set up" in h)
+_, h = owner.post("admin.php", {"act": "rate", "rate": "1550", "back": "admin.php"}, "admin.php")
+check("admin sets exchange rate", "1 USD = 1,550.00" in h)
+_, h = cust.get("buy.php?plan=pro")
+check("checkout uses the new rate", "2,945,000" in h)
+
+# --- registration code -> redeem in app
+_, h = owner.post("admin.php", {"act": "newcode", "plan": "pro", "days": "365", "email": "ade@example.com", "back": "admin.php?tab=codes"}, "admin.php?tab=codes")
+m = re.search(r"New registration code: (VLK-[A-Z0-9-]{14})", h)
+check("admin creates a Pro code", bool(m))
 code = m.group(1)
 _, h = cust.get("account.php")
 check("code shows in customer account", code in h)

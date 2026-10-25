@@ -20,7 +20,7 @@ To continue in a new Claude session, share this file and say: *"Continue the Van
 | Window | Own app window (WebView2), not a browser tab. Closing the window keeps Van Link running; Settings › Quit stops it. Starts with Windows (background). |
 | Plans | **Free trial:** 14 days, **30 min broadcasting per 24 h**, 1 studio + 1 van (2 computers). **Standard:** **$1,100/year**, 1 van, 2 computers. **Pro:** **$1,900/year**, up to 10 vans, 12 computers, extra feeds and backup connection (rolling out). **No monthly fees.** Owner account = unlimited forever. |
 | Licensing | Customers sign in in the app with their website email + password. Licence is **signed with Ed25519** by the website; the app verifies it with the built-in public key. **Locks itself when the trial or subscription ends, online or offline**; catches the clock being set back; licence tied to one computer; works offline for 7 days between check-ins. |
-| Payments | **Paystack** (owner's existing account, business "Gaz Presenter", live, **NGN**; dollar prices converted at `usd_rate`) + **manual** mobile money/bank (owner approves in admin). **Do NOT change the Paystack webhook**: it serves Gaz Presenter (`gazgoc.com.ng/wp-json/gazpresenter/v1/paystack`). Van Link verifies payments directly instead. |
+| Payments | **Paystack only, no manual payments.** Website shows **US dollars** and says "We accept all cards" (Visa, Mastercard, Verve, Amex). Paystack account (business "Gaz Presenter", live) settles in **NGN**: the customer is charged the naira equivalent at the exchange rate the owner sets in **Admin › Overview** (falls back to `usd_rate` in config.php). All records and totals are in USD. **Do NOT change the Paystack webhook**: it serves Gaz Presenter (`gazgoc.com.ng/wp-json/gazpresenter/v1/paystack`). Van Link verifies payments directly instead. |
 | Registration codes | Every confirmed payment creates a code `VLK-XXXX-XXXX-XXXX`, emailed and shown on the account page. The customer enters it in the app (or website) to activate. The owner can create codes in admin (cash sales, gifts). Codes are single-use; can be tied to one account. |
 
 ---
@@ -48,14 +48,14 @@ To continue in a new Claude session, share this file and say: *"Continue the Van
   - `signup.php`: starts the trial
   - `login.php`, `logout.php`
   - `account.php`: licence, registration codes, downloads, computers, payments, "Check my payment", change password
-  - `buy.php`: Paystack or manual payment
+  - `buy.php`: Paystack only, dollar price, all cards
   - `paystack-callback.php`
   - `download.php`: login required
-  - `admin.php`: owner only. Overview, Customers (with search; full details, licence, computers, payments, trial usage, block/unblock, reset password, set/end licence), Payments (approve/reject/check with Paystack), **Registration codes** (create/cancel), Computers
+  - `admin.php`: owner only. Overview, Customers (with search; full details, licence, computers, payments, trial usage, block/unblock, reset password, set/end licence), Payments (check with Paystack), exchange rate on Overview, **Registration codes** (create/cancel), Computers
   - `install.php`: one-time setup; creates tables and the owner account, then **must be deleted**
 - App API: `api/login.php`, `api/check.php`, `api/redeem.php`, `api/logout.php`.
 - Security: hashed passwords (nobody can see passwords, only reset them), CSRF, login rate limits, the owner email can't be taken by sign-up, secrets blocked from the web, and admin rights only via install.php.
-- **Test:** `website/tests/flow.py` with 31 checks; **all pass** on a local SQLite copy.
+- **Test:** `website/tests/flow.py` with 34 checks; **all pass** on a local SQLite copy.
 
 ### Hosting, done in cPanel
 - Subdomain **vanlink.gazgoc.com.ng** → folder `/home/gazgdxcg/vanlink.gazgoc.com.ng` (live, https works, currently empty).
@@ -81,7 +81,6 @@ To continue in a new Claude session, share this file and say: *"Continue the Van
      - `db_pass` (database password)
      - `paystack_secret_key` (from the Paystack dashboard › API Keys)
      - `usd_rate`
-     - `manual_payment_text` (MoMo/bank details)
      - `support_email`
    - Open `https://vanlink.gazgoc.com.ng/install.php`, create the owner account with `ioghenevwogaga@gmail.com`, then **delete install.php**.
    - Check sign-up, log in, and the admin page. Make a small Paystack test, or use `sk_test_` keys first.

@@ -11,29 +11,21 @@ $err = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
-    $how = (string)($_POST['how'] ?? '');
-    if ($how === 'paystack' && paystack_enabled()) {
+    if (!paystack_enabled()) $err = 'Online payment is being set up. Please try again later.';
+    else {
         try { redirect(paystack_start($user, $plan)); }
-        catch (Throwable $ex) { $err = 'Card payment is not available right now (' . $ex->getMessage() . '). Try again, or pay manually below.'; }
-    } elseif ($how === 'manual') {
-        $note = trim((string)($_POST['note'] ?? ''));
-        if ($note === '') $err = 'Tell us how you paid (e.g. MoMo number and transaction ID) so we can find your payment.';
-        else {
-            q('INSERT INTO payments (user_id, plan, amount_usd, method, reference, status, note, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                [$user['id'], $plan, (int)$info['price'], 'manual', 'MAN-' . $user['id'] . '-' . bin2hex(random_bytes(5)), 'pending', substr($note, 0, 500), time()]);
-            flash('Thanks! We received your payment details. Your ' . plan_name($plan) . ' licence starts as soon as we confirm the payment.');
-            redirect('account.php');
-        }
+        catch (Throwable $ex) { $err = 'Payment could not start (' . $ex->getMessage() . '). Please try again in a moment.'; }
     }
 }
 
 page_head('Buy ' . plan_name($plan), $user);
 $cur = current_licence((int)$user['id']);
-$local = strtoupper($CFG['paystack_currency']) === 'USD' ? '' : ' (about ' . strtoupper($CFG['paystack_currency']) . ' ' . number_format($info['price'] * (float)$CFG['usd_rate']) . ')';
+$cur3 = strtoupper($CFG['paystack_currency']);
+$local = $cur3 === 'USD' ? '' : '₦' . number_format(paystack_amount($plan) / 100);
 ?>
 <main class="narrow">
   <h1>Van Link <?= e(plan_name($plan)) ?></h1>
-  <p><b><?= money($info['price']) ?> per year</b><?= e($local) ?>. No monthly fees.</p>
+  <p><b><?= money($info['price']) ?> per year.</b> No monthly fees.</p>
   <?php if (licence_active($cur) && $cur['plan'] === $plan): ?>
     <p class="ok-box">You already have <?= e(plan_name($plan)) ?> until <?= fmt_date($cur['expires_at']) ?>. Paying now adds one more year.</p>
   <?php elseif (licence_active($cur) && $cur['plan'] !== 'trial'): ?>
@@ -42,23 +34,13 @@ $local = strtoupper($CFG['paystack_currency']) === 'USD' ? '' : ' (about ' . str
   <p style="margin:8px 0"><a href="buy.php?plan=<?= $plan === 'pro' ? 'standard' : 'pro' ?>">Switch to <?= $plan === 'pro' ? 'Standard' : 'Pro' ?> instead</a></p>
   <?php if ($err): ?><p class="err-box"><?= e($err) ?></p><?php endif ?>
 
-  <?php if (paystack_enabled()): ?>
   <form method="post" class="card"><?= csrf_field() ?>
-    <input type="hidden" name="plan" value="<?= e($plan) ?>"><input type="hidden" name="how" value="paystack">
-    <h3>Pay by card, bank transfer or USSD</h3>
-    <p class="muted">Secure payment with Paystack. Your licence starts immediately.</p>
-    <button class="btn">Pay with Paystack</button>
-  </form>
-  <?php endif ?>
-
-  <form method="post" class="card" style="margin-top:16px"><?= csrf_field() ?>
-    <input type="hidden" name="plan" value="<?= e($plan) ?>"><input type="hidden" name="how" value="manual">
-    <h3>Pay by mobile money or bank transfer</h3>
-    <pre class="pay"><?= e($CFG['manual_payment_text']) ?></pre>
-    <?php if (!empty($CFG['support_whatsapp'])): ?><p class="muted">Questions: WhatsApp <?= e($CFG['support_whatsapp']) ?></p><?php endif ?>
-    <label>After paying, tell us the details (amount, sender number or name, transaction ID)
-      <textarea name="note" required maxlength="500"></textarea></label>
-    <button class="btn dark">I have paid</button>
+    <input type="hidden" name="plan" value="<?= e($plan) ?>">
+    <h3><?= money($info['price']) ?> <small class="muted">/ year</small></h3>
+    <p class="cards-line">We accept all cards: <b>Visa</b>, <b>Mastercard</b>, <b>Verve</b> and <b>American Express</b>, from any country. Bank transfer and USSD also work in Nigeria.</p>
+    <p class="muted">Your registration code appears as soon as the payment is confirmed, and is emailed to you.</p>
+    <button class="btn">Pay <?= money($info['price']) ?> by card</button>
+    <p class="muted" style="font-size:.85em;margin-top:10px">Secure checkout by Paystack.<?php if ($local): ?> Payments are settled in Nigeria, so the checkout page and your bank statement may show the naira equivalent (<?= e($local) ?>).<?php endif ?></p>
   </form>
 </main>
 <?php page_foot();
