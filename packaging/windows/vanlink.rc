@@ -1,7 +1,7 @@
 1 ICON "vanlink.ico"
 1 VERSIONINFO
-FILEVERSION 0,1,2,0
-PRODUCTVERSION 0,1,2,0
+FILEVERSION 0,1,3,0
+PRODUCTVERSION 0,1,3,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -10,8 +10,8 @@ BEGIN
       VALUE "CompanyName", "Gaz Media Productions"
       VALUE "FileDescription", "Van Link - live video from the van to the studio"
       VALUE "ProductName", "Van Link"
-      VALUE "FileVersion", "0.1.2"
-      VALUE "ProductVersion", "0.1.2"
+      VALUE "FileVersion", "0.1.3"
+      VALUE "ProductVersion", "0.1.3"
       VALUE "OriginalFilename", "VanLink.exe"
       VALUE "LegalCopyright", "(c) 2026 Gaz Media Productions"
     END

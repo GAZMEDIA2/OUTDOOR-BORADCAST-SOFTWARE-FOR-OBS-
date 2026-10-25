@@ -4,7 +4,7 @@ Unicode true
 !include "LogicLib.nsh"
 
 !ifndef VERSION
-  !define VERSION "0.1.2"
+  !define VERSION "0.1.3"
 !endif
 !define APP "Van Link OBS Panel"
 !define COMPANY "Gaz Media Productions"

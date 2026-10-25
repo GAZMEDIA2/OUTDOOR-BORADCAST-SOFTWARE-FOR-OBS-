@@ -163,6 +163,8 @@ func (o *OBS) handle(typ string, d map[string]any) any {
 				o.receiving = nil
 			}
 		}
+	case "GetProfileParameter":
+		return map[string]any{"parameterValue": "true"} // pretend Stream Delay is on
 	case "GetMediaInputStatus":
 		return map[string]any{"mediaState": "OBS_MEDIA_STATE_PLAYING"}
 	}

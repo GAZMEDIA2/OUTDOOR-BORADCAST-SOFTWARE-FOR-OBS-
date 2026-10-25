@@ -206,7 +206,8 @@ function studioView() {
   if (!S.vans || !S.vans.length) h += `<div class="card"><p class="sub">No vans yet. Click <b>Add a van</b> to create a pairing code to send to the van.</p></div>`;
   for (const v of S.vans || []) {
     h += `<div class="card" id="v_${v.id}">
-    <div class="row"><h2 class="grow">${esc(v.name)}</h2><span class="sub" id="v_${v.id}_src"></span></div>
+    <div class="row"><h2 class="grow">${esc(v.name)}</h2><span class="sub" id="v_${v.id}_src"></span>
+      <button data-act="jump" data-id="${v.id}" title="Restarts the OBS source to drop any delay that has built up">Jump to live</button></div>
     <div id="v_${v.id}_mon" style="margin-top:10px"></div>
     <details id="v_${v.id}_pair" ${v.hasReply ? "" : "open"}><summary>Pairing</summary>
       <div class="steps" style="margin-top:12px">
@@ -379,6 +380,7 @@ document.addEventListener("click", async e => {
       case "role": await api("/api/role", {role: el.dataset.role}); break;
       case "addVan": await api("/api/studio/add", {name: $("#newVanName").value}); done("add", "Van added. Send its code to the van."); break;
       case "reply": await api("/api/studio/reply", {id: el.dataset.id, code: $("#v_"+el.dataset.id+"_reply").value}); done("reply"+el.dataset.id, "Dialling the van…"); break;
+      case "jump": await api("/api/studio/jump", {id: el.dataset.id}); el.textContent = "Done"; setTimeout(() => el.textContent = "Jump to live", 2000); return;
       case "removeVan": if (confirm("Remove this van and its OBS source?")) await api("/api/studio/remove", {id: el.dataset.id}); break;
       case "pair": await api("/api/van/pair", {code: $("#studioCode").value}); done("pair", "Paired. Send the reply code back to the studio."); break;
       case "unpair": if (confirm("Forget this studio? You will need a new code to reconnect.")) await api("/api/van/unpair"); break;

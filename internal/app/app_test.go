@@ -130,6 +130,13 @@ func TestFullBroadcast(t *testing.T) {
 		t.Fatalf("unexpected video: %s", probe)
 	}
 
+	if !strings.Contains(strings.Join(vanOBS.Requests, ","), "SetProfileParameter") {
+		t.Fatal("OBS Stream Delay was not turned off")
+	}
+	if err := studio.JumpToLive(studio.State().Vans[0].ID); err != nil {
+		t.Fatal(err)
+	}
+
 	if err := van.StopLive(); err != nil {
 		t.Fatal(err)
 	}

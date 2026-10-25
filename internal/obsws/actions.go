@@ -71,7 +71,8 @@ func (c *Client) EnsureReceiver(inputName, url string) error {
 		"close_when_inactive": false,
 		"clear_on_media_end":  true,
 		"reconnect_delay_sec": 1,
-		"buffering_mb":        1,
+		"buffering_mb":        0,                                 // no extra network buffer
+		"ffmpeg_options":      "fflags=nobuffer flags=low_delay", // show frames as soon as they arrive (OBS 29.1+)
 	}
 	var inputs struct {
 		Inputs []struct {
@@ -113,4 +114,22 @@ func (c *Client) RestartMedia(inputName string) error {
 // RemoveInput deletes a receiver source.
 func (c *Client) RemoveInput(inputName string) error {
 	return c.Call("RemoveInput", map[string]any{"inputName": inputName}, nil)
+}
+
+// ProfileParameter reads one OBS profile setting, e.g. ("Output", "DelayEnable").
+func (c *Client) ProfileParameter(category, name string) (string, error) {
+	var r struct {
+		Value *string `json:"parameterValue"`
+	}
+	err := c.Call("GetProfileParameter", map[string]any{"parameterCategory": category, "parameterName": name}, &r)
+	if err != nil || r.Value == nil {
+		return "", err
+	}
+	return *r.Value, nil
+}
+
+// SetProfileParameter changes one OBS profile setting.
+func (c *Client) SetProfileParameter(category, name, value string) error {
+	return c.Call("SetProfileParameter", map[string]any{
+		"parameterCategory": category, "parameterName": name, "parameterValue": value}, nil)
 }

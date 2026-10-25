@@ -560,6 +560,9 @@ func (s *Session) isClosed() bool {
 	return s.closed
 }
 
+// Note adds a line to the connection history shown on the screen.
+func (s *Session) Note(text string) { s.event(text) }
+
 // Close says goodbye to the other side and stops.
 func (s *Session) Close() {
 	s.mu.Lock()

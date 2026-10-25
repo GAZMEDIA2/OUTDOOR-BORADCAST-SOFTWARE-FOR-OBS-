@@ -67,6 +67,7 @@ func (a *App) Handler() http.Handler {
 		b := read(r)
 		return nil, a.StudioReply(b.ID, b.Code)
 	})
+	post("/api/studio/jump", func(r *http.Request) (any, error) { return nil, a.JumpToLive(read(r).ID) })
 	post("/api/studio/remove", func(r *http.Request) (any, error) { return nil, a.RemoveVan(read(r).ID) })
 	post("/api/van/pair", func(r *http.Request) (any, error) {
 		reply, err := a.PairVan(read(r).Code)

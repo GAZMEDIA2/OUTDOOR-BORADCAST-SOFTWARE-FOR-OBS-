@@ -24,7 +24,7 @@ import (
 )
 
 // Version of Van Link.
-var Version = "0.1.2"
+var Version = "0.1.3"
 
 // App is the running program.
 type App struct {
@@ -358,7 +358,30 @@ func (a *App) GoLive() error {
 	if err == nil && st.Active {
 		return nil
 	}
+	// OBS's own "Stream Delay" (Settings > Advanced) holds the picture back on
+	// purpose - often left on from YouTube/Facebook setups. Turn it off.
+	if v, err := obs.ProfileParameter("Output", "DelayEnable"); err == nil && strings.EqualFold(v, "true") {
+		if obs.SetProfileParameter("Output", "DelayEnable", "false") == nil {
+			sess.Note("Turned off OBS Stream Delay (Settings > Advanced) - it was holding the picture back")
+		}
+	}
 	return obs.StartStream()
+}
+
+// JumpToLive restarts the studio's OBS source for one van, dropping any
+// backlog so the picture is live again.
+func (a *App) JumpToLive(id string) error {
+	a.mu.Lock()
+	v, obs := a.studio[id], a.obs
+	a.mu.Unlock()
+	if v == nil {
+		return errors.New("unknown van")
+	}
+	if obs == nil || !obs.Alive() {
+		return errors.New("OBS is not connected")
+	}
+	v.sess.Note("Jumped to live (OBS source restarted)")
+	return obs.RestartMedia(inputName(v.entry))
 }
 
 // StopLive stops OBS streaming.
