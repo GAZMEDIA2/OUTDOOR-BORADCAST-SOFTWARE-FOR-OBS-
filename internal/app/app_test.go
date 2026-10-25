@@ -52,7 +52,8 @@ func TestFullBroadcast(t *testing.T) {
 		obs string
 	}{{studio, studioOBS.Addr}, {van, vanOBS.Addr}} {
 		addr := x.obs
-		if err := x.a.UpdateSettings(SettingsUpdate{OBSAddr: &addr, UseSTUN: &no}); err != nil {
+		manual := true
+		if err := x.a.UpdateSettings(SettingsUpdate{OBSAddr: &addr, UseSTUN: &no, OBSManual: &manual}); err != nil {
 			t.Fatal(err)
 		}
 	}

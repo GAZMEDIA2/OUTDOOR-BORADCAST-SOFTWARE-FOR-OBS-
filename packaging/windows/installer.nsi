@@ -38,7 +38,7 @@ VIAddVersionKey "CompanyName" "${COMPANY}"
 !define MUI_FINISHPAGE_RUN_FUNCTION OpenApp
 !define MUI_FINISHPAGE_SHOWREADME ""
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show how to turn on OBS remote control"
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show the getting-started guide"
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION ShowHelp
 
 !insertmacro MUI_PAGE_WELCOME
@@ -55,7 +55,7 @@ Function OpenApp
 FunctionEnd
 
 Function ShowHelp
-  ExecShell "open" "$INSTDIR\How to connect OBS.txt"
+  ExecShell "open" "$INSTDIR\Getting started.txt"
 FunctionEnd
 
 Section "Install"
@@ -66,7 +66,7 @@ Section "Install"
   SetOutPath "$INSTDIR"
   File "..\..\dist\${EXE}"
   File "vanlink.ico"
-  File "How to connect OBS.txt"
+  File "Getting started.txt"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
   CreateDirectory "$SMPROGRAMS\${APP}"
@@ -96,7 +96,7 @@ Section "Uninstall"
   nsExec::Exec 'reg delete HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v VanLink /f'
   Delete "$INSTDIR\${EXE}"
   Delete "$INSTDIR\vanlink.ico"
-  Delete "$INSTDIR\How to connect OBS.txt"
+  Delete "$INSTDIR\Getting started.txt"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
   Delete "$SMPROGRAMS\${APP}\${APP}.lnk"

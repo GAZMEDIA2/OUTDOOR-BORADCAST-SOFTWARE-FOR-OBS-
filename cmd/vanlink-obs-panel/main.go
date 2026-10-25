@@ -32,6 +32,9 @@ func main() {
 			os.Exit(3)
 		}
 		err = obsdock.Install(dockURL)
+		if err == nil {
+			_, err = obsdock.EnableWebSocket() // so Van Link can connect to OBS by itself
+		}
 	case "remove":
 		err = obsdock.Remove()
 	default:

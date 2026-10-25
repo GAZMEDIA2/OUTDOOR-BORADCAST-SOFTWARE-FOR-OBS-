@@ -381,10 +381,40 @@ func (a *App) connectOBS() {
 		return
 	}
 	cfg := a.store.get()
-	c, err := obsws.Dial(cfg.OBSAddr, cfg.OBSPassword, 3*time.Second)
+	addr, pass := cfg.OBSAddr, cfg.OBSPassword
+	friendly := ""
+	if !cfg.OBSManual {
+		// Automatic: use OBS's own remote-control settings, switching the
+		// remote control on by ourselves when OBS is closed.
+		ws, err := obsdock.ReadWebSocket()
+		if (err != nil || !ws.Enabled) && obsdock.OBSFound() && !obsdock.OBSRunning() {
+			if w, e := obsdock.EnableWebSocket(); e == nil {
+				ws, err = w, nil
+				a.logf("OBS remote control switched on automatically")
+			}
+		}
+		switch {
+		case err == nil && ws.Enabled:
+			addr = "127.0.0.1:" + strconv.Itoa(ws.Port)
+			pass = ""
+			if ws.Auth {
+				pass = ws.Password
+			}
+			friendly = "Open OBS - Van Link connects to it automatically."
+		case !obsdock.OBSFound():
+			friendly = "OBS Studio was not found on this computer. Install OBS Studio 28 or newer, open it once, then come back."
+		default:
+			friendly = "Close OBS and open it again - Van Link will then connect to it automatically."
+		}
+	}
+	c, err := obsws.Dial(addr, pass, 3*time.Second)
 	a.mu.Lock()
 	if err != nil {
-		a.obs, a.obsErr = nil, err.Error()
+		msg := err.Error()
+		if friendly != "" {
+			msg = friendly
+		}
+		a.obs, a.obsErr = nil, msg
 		a.mu.Unlock()
 		return
 	}
@@ -498,6 +528,7 @@ type State struct {
 		Error     string `json:"error"`
 		Addr      string `json:"addr"`
 		HasPass   bool   `json:"hasPassword"`
+		Manual    bool   `json:"manual"`
 	} `json:"obs"`
 	Settings struct {
 		LatencyMS int  `json:"latencyMs"`
@@ -525,7 +556,7 @@ func (a *App) State() State {
 	s.Version, s.Role, s.Name = Version, cfg.Role, cfg.Name
 	s.Settings.LatencyMS, s.Settings.UseSTUN = cfg.LatencyMS, cfg.UseSTUN
 	s.Setup.Supported, s.Setup.Done = sys.Supported(), cfg.SetupDone
-	s.OBS.Addr, s.OBS.HasPass = cfg.OBSAddr, cfg.OBSPassword != ""
+	s.OBS.Addr, s.OBS.HasPass, s.OBS.Manual = cfg.OBSAddr, cfg.OBSPassword != "", cfg.OBSManual
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	s.OBS.Connected = a.obs != nil && a.obs.Alive()
@@ -583,6 +614,7 @@ type SettingsUpdate struct {
 	Name        *string `json:"name"`
 	OBSAddr     *string `json:"obsAddr"`
 	OBSPassword *string `json:"obsPassword"`
+	OBSManual   *bool   `json:"obsManual"`
 	LatencyMS   *int    `json:"latencyMs"`
 	UseSTUN     *bool   `json:"useStun"`
 }
@@ -602,6 +634,9 @@ func (a *App) UpdateSettings(u SettingsUpdate) error {
 		if u.OBSPassword != nil {
 			c.OBSPassword = *u.OBSPassword
 		}
+		if u.OBSManual != nil {
+			c.OBSManual = *u.OBSManual
+		}
 		if u.LatencyMS != nil {
 			c.LatencyMS = *u.LatencyMS
 		}
@@ -609,7 +644,7 @@ func (a *App) UpdateSettings(u SettingsUpdate) error {
 			c.UseSTUN = *u.UseSTUN
 		}
 	})
-	if u.OBSAddr != nil || u.OBSPassword != nil {
+	if u.OBSAddr != nil || u.OBSPassword != nil || u.OBSManual != nil {
 		a.mu.Lock()
 		if a.obs != nil {
 			a.obs.Close()

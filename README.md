@@ -33,7 +33,7 @@ The only outside service Van Link may contact is a public "what is my address?" 
 - OBS sends its normal SRT stream to Van Link on the same computer (`127.0.0.1:9710`). Van Link carries the SRT packets unchanged through the direct path, and hands them to the studio's OBS media source (`127.0.0.1:9711+`). SRT's own encryption (AES-128, passphrase from the pairing code) and loss repair stay end to end.
 - Van Link reads SRT's acknowledgement packets to measure delay, link capacity and repaired data without decrypting anything.
 - Status is exchanged every second over the same path, authenticated with a key from the pairing code.
-- OBS is controlled through its built-in WebSocket server (Tools › WebSocket Server Settings).
+- OBS is controlled through its built-in remote control (obs-websocket, local to the computer only). Van Link switches it on and reads its password by itself, so operators set nothing up in OBS.
 - The screen is a local web page on `http://127.0.0.1:8765/`. It can be docked in OBS via View › Docks › Custom Browser Docks, at `http://127.0.0.1:8765/?dock=1`.
 
 ## Building

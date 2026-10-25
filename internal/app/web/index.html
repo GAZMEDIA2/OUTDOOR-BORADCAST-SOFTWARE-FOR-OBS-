@@ -88,9 +88,12 @@ body.dock .card{padding:12px}
 <div class="grid2">
 <div>
 <label for="sName">Name shown to the other side</label><input id="sName" maxlength="40">
-<label for="sObsAddr">OBS address</label><input id="sObsAddr" placeholder="127.0.0.1:4455">
-<label for="sObsPass">OBS WebSocket password</label><input id="sObsPass" type="password" placeholder="Leave blank to keep the saved one">
-<p class="sub" style="margin-top:6px">In OBS: <b>Tools › WebSocket Server Settings</b> › tick <b>Enable WebSocket server</b> › <b>Show Connect Info</b> › copy the password here.</p>
+<label><input id="sObsAuto" type="checkbox" style="width:auto"> Connect to OBS automatically (recommended)</label>
+<p class="sub">Van Link switches on OBS's remote control by itself and connects. Nothing to set up.</p>
+<div id="manualObs">
+<label for="sObsAddr">OBS address (manual)</label><input id="sObsAddr" placeholder="127.0.0.1:4455">
+<label for="sObsPass">OBS WebSocket password (manual)</label><input id="sObsPass" type="password" placeholder="Leave blank to keep the saved one">
+</div>
 </div>
 <div>
 <label for="sLat">Delay buffer (studio decides; the van follows)</label>
@@ -171,7 +174,8 @@ function render() {
 
 function obsHint() {
   if (S.obs.connected) return "";
-  return `<div class="hint"><b>Connect OBS:</b> open OBS › <b>Tools › WebSocket Server Settings</b> › tick <b>Enable WebSocket server</b>, then put its password in <b>Settings</b> here. ${S.obs.error ? "<br><span style='opacity:.8'>"+esc(S.obs.error)+"</span>" : ""}</div>`;
+  if (!S.obs.manual) return `<div class="hint"><b>Waiting for OBS.</b> ${esc(S.obs.error || "Open OBS - Van Link connects to it automatically.")}</div>`;
+  return `<div class="hint"><b>OBS not connected.</b> Check the OBS address and password in <b>Settings</b>. ${S.obs.error ? "<br><span style='opacity:.8'>"+esc(S.obs.error)+"</span>" : ""}</div>`;
 }
 
 function buildView() {
@@ -331,6 +335,9 @@ function updateView() {
 function fillSettings() {
   $("#sName").value = S.name || "";
   $("#sObsAddr").value = S.obs.addr || "";
+  $("#sObsAuto").checked = !S.obs.manual;
+  $("#manualObs").classList.toggle("hide", !S.obs.manual);
+  $("#sObsAuto").onchange = () => $("#manualObs").classList.toggle("hide", $("#sObsAuto").checked);
   $("#sLat").value = String(S.settings.latencyMs);
   if ($("#sLat").value !== String(S.settings.latencyMs)) { const o=document.createElement("option"); o.value=o.textContent=S.settings.latencyMs; $("#sLat").append(o); $("#sLat").value=String(S.settings.latencyMs); }
   $("#sStun").checked = S.settings.useStun;
@@ -380,7 +387,7 @@ document.addEventListener("click", async e => {
       case "copy": { const t = $("#"+el.dataset.src); t.select(); try { await navigator.clipboard.writeText(t.value); } catch { document.execCommand("copy"); } el.textContent = "Copied"; setTimeout(() => el.textContent = "Copy code", 2000); return; }
       case "closeSettings": showSettings = false; break;
       case "saveSettings": {
-        const body = {name: $("#sName").value, obsAddr: $("#sObsAddr").value, useStun: $("#sStun").checked};
+        const body = {name: $("#sName").value, obsAddr: $("#sObsAddr").value, useStun: $("#sStun").checked, obsManual: !$("#sObsAuto").checked};
         if (S.role !== "van") body.latencyMs = +$("#sLat").value;
         if ($("#sObsPass").value) body.obsPassword = $("#sObsPass").value;
         await api("/api/settings", body); $("#sMsg").className = "msg ok"; $("#sMsg").textContent = "Saved";

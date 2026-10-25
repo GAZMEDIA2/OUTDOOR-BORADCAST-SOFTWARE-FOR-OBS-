@@ -13,6 +13,7 @@ type Config struct {
 	Name        string `json:"name"`
 	OBSAddr     string `json:"obsAddr"`
 	OBSPassword string `json:"obsPassword"`
+	OBSManual   bool   `json:"obsManual"` // false = connect to OBS automatically
 	LatencyMS   int    `json:"latencyMs"`
 	UseSTUN     bool   `json:"useStun"`
 

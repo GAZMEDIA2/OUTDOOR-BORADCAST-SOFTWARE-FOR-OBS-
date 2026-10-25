@@ -1,0 +1,31 @@
+VAN LINK - GETTING STARTED
+==========================
+
+Van Link connects to OBS by itself. There is nothing to set up in OBS.
+(If OBS was open while you installed, close OBS and open it again once.)
+The top of the Van Link window shows "OBS connected".
+
+
+STUDIO COMPUTER
+---------------
+1. Open Van Link and choose "This is the Studio".
+2. Click "Add a van". Send the code to the van (Copy or Share on WhatsApp).
+3. Paste the reply code the van sends back, then click Connect.
+4. In OBS, a scene called "Van Link" appears with the van's source.
+   Add that source to your programme scenes with Add > Existing.
+
+
+VAN COMPUTER
+------------
+1. Open Van Link and choose "This is the Van".
+2. Paste the studio's code and click Pair.
+3. Send the reply code back to the studio.
+4. When the screen says "Connected", click GO LIVE.
+   Van Link sends OBS's Program output. "LIVE AT STUDIO" appears
+   once the studio confirms it is receiving your picture.
+
+
+THE VAN LINK PANEL IN OBS
+-------------------------
+Install "Van Link OBS Panel" (close OBS first), then open OBS.
+If you don't see the panel: View > Docks > Van Link.

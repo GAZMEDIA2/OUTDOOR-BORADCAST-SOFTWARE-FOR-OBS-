@@ -85,3 +85,31 @@ func TestRemove(t *testing.T) {
 		t.Fatalf("bad result:\n%s", b)
 	}
 }
+
+func TestWebSocketEnable(t *testing.T) {
+	d := t.TempDir()
+	write(t, d, "user.ini", "[General]\n")
+	os.MkdirAll(filepath.Join(d, "plugin_config", "obs-websocket"), 0o700)
+	write(t, filepath.Join(d, "plugin_config", "obs-websocket"), "config.json",
+		`{"alerts_enabled":false,"auth_required":true,"first_load":true,"server_enabled":false,"server_password":"keepMe123","server_port":4460}`)
+	w, err := enableWS(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !w.Enabled || w.Password != "keepMe123" || w.Port != 4460 {
+		t.Fatalf("bad: %+v", w)
+	}
+	r, err := readWS(d)
+	if err != nil || r != w {
+		t.Fatalf("read back: %+v %v", r, err)
+	}
+}
+
+func TestWebSocketCreate(t *testing.T) {
+	d := t.TempDir()
+	write(t, d, "global.ini", "[General]\n")
+	w, err := enableWS(d)
+	if err != nil || !w.Enabled || len(w.Password) != 16 || w.Port != 4455 {
+		t.Fatalf("bad: %+v %v", w, err)
+	}
+}
