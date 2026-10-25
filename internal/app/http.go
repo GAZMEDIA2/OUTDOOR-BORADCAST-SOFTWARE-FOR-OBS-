@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 )
 
 //go:embed web
@@ -77,6 +78,10 @@ func (a *App) Handler() http.Handler {
 	post("/api/nettest", func(r *http.Request) (any, error) { a.RunNetTest(); return nil, nil })
 	post("/api/setup", func(r *http.Request) (any, error) { return a.Setup(), nil })
 	post("/api/restore", func(r *http.Request) (any, error) { return a.Restore(), nil })
+	post("/api/quit", func(r *http.Request) (any, error) {
+		go func() { time.Sleep(300 * time.Millisecond); a.RequestQuit() }()
+		return nil, nil
+	})
 
 	return localOnly(mux)
 }

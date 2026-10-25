@@ -39,7 +39,15 @@ type App struct {
 	testing  bool
 	lastMsg  string
 	quit     chan struct{}
+	userQuit chan struct{}
+	quitOnce sync.Once
 }
+
+// QuitRequested is closed when the operator clicks Quit Van Link.
+func (a *App) QuitRequested() <-chan struct{} { return a.userQuit }
+
+// RequestQuit asks the program to stop (from the screen's Quit button).
+func (a *App) RequestQuit() { a.quitOnce.Do(func() { close(a.userQuit) }) }
 
 type studioVan struct {
 	entry    VanEntry
@@ -51,7 +59,7 @@ type studioVan struct {
 
 // New loads settings and restarts any saved links.
 func New(configDir string) *App {
-	a := &App{store: loadStore(configDir), studio: map[string]*studioVan{}, quit: make(chan struct{})}
+	a := &App{store: loadStore(configDir), studio: map[string]*studioVan{}, quit: make(chan struct{}), userQuit: make(chan struct{})}
 	cfg := a.store.get()
 	switch cfg.Role {
 	case "studio":

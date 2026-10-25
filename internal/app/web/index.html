@@ -1,1 +1,398 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Van Link</title></head><body style="background:#16181D;color:#E8EAED;font-family:system-ui;padding:32px"><h1>Van Link</h1><p>The full screens are being built.</p></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Van Link – Gaz Media Productions</title>
+<style>
+:root{--bg:#16181D;--panel:#1F2229;--panel2:#262A33;--line:#2E323B;--text:#E8EAED;--muted:#A3A9B0;--blue:#2E7D32;--blueText:#A7E08A;
+--good:#22C55E;--goodBg:#12351F;--goodText:#86EFAC;--warnBg:#3A2A12;--warnText:#FCD34D;--badBg:#3B1515;--badText:#FCA5A5;--live:#DC2626}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:9px 14px;min-height:40px}
+button:hover{border-color:#4B5160}
+button.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+button.live{background:var(--live);border-color:var(--live);color:#fff;font-weight:700;font-size:17px;padding:14px}
+button.danger{color:var(--badText)}
+button:disabled{opacity:.5;cursor:default}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
+textarea{resize:vertical;min-height:72px;font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line)}
+.logo{width:32px;height:32px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex:none}
+.brand{font-weight:700;font-size:16px}
+.pill{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.pill.ok{color:var(--goodText);border-color:#1F5F35}
+.pill.bad{color:var(--badText);border-color:#6B2323}
+.grow{flex:1}
+main{max-width:1100px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h2{margin:0 0 4px;font-size:17px}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.banner{border-radius:10px;padding:12px 14px;font-weight:600;font-size:15px;display:flex;align-items:center;gap:10px}
+.banner.idle{background:var(--panel2);color:var(--muted)}
+.banner.good{background:var(--goodBg);color:var(--goodText)}
+.banner.warn{background:var(--warnBg);color:var(--warnText)}
+.banner.bad{background:var(--badBg);color:var(--badText)}
+.banner.onair{background:var(--live);color:#fff}
+.dot{width:10px;height:10px;border-radius:50%;background:currentColor;flex:none}
+.side{background:var(--panel2);border-radius:10px;padding:12px 14px}
+.side h3{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv:last-child{border-bottom:0}
+.kv span:first-child{color:var(--muted)}
+.bars{display:inline-flex;gap:3px;align-items:flex-end;height:16px;margin-right:8px;vertical-align:-2px}
+.bars i{display:block;width:5px;border-radius:1px;background:#3A3F4A}
+.bars i.on{background:var(--good)}
+.role{display:flex;gap:16px;align-items:flex-start;text-align:left;padding:18px;border-radius:12px;width:100%;background:var(--panel);border:2px solid var(--line)}
+.role:hover{border-color:var(--blue)}
+.role b{font-size:17px;display:block;margin-bottom:4px}
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:14px}
+.step{display:flex;gap:12px}
+.step::before{counter-increment:s;content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
+.step>div{flex:1;min-width:0}
+.msg{font-size:13px;margin-top:6px}
+.msg.err{color:var(--badText)}
+.msg.ok{color:var(--goodText)}
+.hint{background:var(--warnBg);color:var(--warnText);border-radius:10px;padding:10px 14px;font-size:13px}
+.hint b{color:#FDE68A}
+details summary{cursor:pointer;color:var(--blueText);font-size:13px;margin-top:6px}
+.events{font-size:12px;color:var(--muted);margin:6px 0 0;padding:0;list-style:none}
+.events li{padding:2px 0}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#1F4D22;color:#C5EBB0;margin-left:6px;font-weight:600}
+.big{font-size:22px;font-weight:700;margin:0 0 4px}
+.hide{display:none!important}
+body.dock header .pill.ver, body.dock .nodock{display:none}
+body.dock main{padding:10px;gap:10px}
+body.dock .card{padding:12px}
+</style>
+</head>
+<body>
+<header>
+<img src="logo.png" alt="Gaz Media Productions" width="36" height="36" style="flex:none">
+<div><div class="brand">Van Link</div><div class="sub nodock" style="font-size:11px;margin-top:-2px">by Gaz Media Productions</div></div>
+<span class="pill" id="rolePill"></span>
+<div class="grow"></div>
+<span class="pill" id="obsPill" title="">OBS</span>
+<button id="gear" aria-label="Settings">Settings</button>
+</header>
+<main id="main"></main>
+
+<template id="tSettings">
+<div class="card" id="settings">
+<div class="row"><h2 class="grow">Settings</h2><button data-act="closeSettings">Close</button></div>
+<div class="grid2">
+<div>
+<label for="sName">Name shown to the other side</label><input id="sName" maxlength="40">
+<label for="sObsAddr">OBS address</label><input id="sObsAddr" placeholder="127.0.0.1:4455">
+<label for="sObsPass">OBS WebSocket password</label><input id="sObsPass" type="password" placeholder="Leave blank to keep the saved one">
+<p class="sub" style="margin-top:6px">In OBS: <b>Tools › WebSocket Server Settings</b> › tick <b>Enable WebSocket server</b> › <b>Show Connect Info</b> › copy the password here.</p>
+</div>
+<div>
+<label for="sLat">Delay buffer (studio decides; the van follows)</label>
+<select id="sLat"><option value="300">Short – 0.3 s (strong, stable internet)</option><option value="1000">Normal – 1 s (recommended)</option><option value="2000">Safe – 2 s (mobile data, weak signal)</option><option value="4000">Extra safe – 4 s</option></select>
+<label><input id="sStun" type="checkbox" style="width:auto"> Allow the public address check</label>
+<p class="sub">A few bytes asking "what is my internet address?". Needed for direct dialling over IPv4. Video never goes through it.</p>
+<div class="row" style="margin-top:12px"><button class="primary" data-act="saveSettings">Save</button><span class="msg" id="sMsg"></span></div>
+</div>
+</div>
+<hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+<div class="grid2">
+<div>
+<h2>Network test</h2>
+<p class="sub">Checks how this internet connection will work for Van Link.</p>
+<div class="row" style="margin-top:10px"><button data-act="netTest" id="ntBtn">Run network test</button></div>
+<div id="ntOut"></div>
+</div>
+<div>
+<h2>One-click setup</h2>
+<p class="sub" id="setupText"></p>
+<div class="row" style="margin-top:10px"><button data-act="setup" id="setupBtn">Allow and set up</button><button data-act="restore" id="restoreBtn">Restore original settings</button></div>
+<div class="msg" id="setupMsg"></div>
+</div>
+</div>
+<hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+<div class="row"><button class="danger" data-act="changeRole">Change this computer's role</button><button data-act="quit">Quit Van Link</button><span class="sub grow" style="text-align:right">Van Link <span id="ver"></span> · © Gaz Media Productions</span></div>
+</div>
+</template>
+
+<script>
+"use strict";
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dock = new URLSearchParams(location.search).has("dock");
+if (dock) document.body.classList.add("dock");
+
+let S = null, viewKey = "", showSettings = false;
+const liveSince = {};          // when "live" started, per feed, for the on-air clock
+const notes = {};              // messages under buttons, per key
+
+async function api(path, body) {
+  const r = await fetch(path, {method:"POST", headers:{"Content-Type":"application/json","X-VanLink":"1"}, body: JSON.stringify(body||{})});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "Something went wrong");
+  return j;
+}
+async function refresh() {
+  try { S = await (await fetch("/api/state")).json(); render(); }
+  catch (e) { $("#obsPill").textContent = "Van Link stopped"; }
+}
+
+function bars(n) { let h=""; for (let i=0;i<4;i++) h += `<i class="${i<n?"on":""}" style="height:${6+i*4}px"></i>`; return `<span class="bars" aria-hidden="true">${h}</span>`; }
+function clock(sec) { sec=Math.max(0,Math.floor(sec)); const h=Math.floor(sec/3600), m=Math.floor(sec%3600/60), s=sec%60; return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":"); }
+function since(key, on) { if (on) { liveSince[key] ??= Date.now(); return clock((Date.now()-liveSince[key])/1000); } delete liveSince[key]; return ""; }
+function mbps(k) { return k >= 1000 ? (k/1000).toFixed(1)+" Mbps" : Math.round(k)+" kbps"; }
+function delay(ms) { return ms ? (ms/1000).toFixed(ms<1000?2:1)+" s" : "measuring…"; }
+function note(key) { const n = notes[key]; return n ? `<div class="msg ${n.err?"err":"ok"}">${esc(n.text)}</div>` : ""; }
+function share(text, code) { return `https://wa.me/?text=${encodeURIComponent(text + "\n\n" + code)}`; }
+
+// ------------------------------------------------------------ render
+function render() {
+  $("#rolePill").textContent = S.role === "studio" ? "Studio" : S.role === "van" ? "Van" : "Setup";
+  const op = $("#obsPill");
+  op.className = "pill " + (S.obs.connected ? "ok" : "bad");
+  op.textContent = S.obs.connected ? "OBS connected" : "OBS not connected";
+  op.title = S.obs.error || "";
+
+  const key = [S.role, showSettings, (S.vans||[]).map(v=>v.id+v.hasReply).join(","), S.van ? "paired" : "none"].join("|");
+  if (key !== viewKey) { viewKey = key; buildView(); }
+  updateView();
+}
+
+function obsHint() {
+  if (S.obs.connected) return "";
+  return `<div class="hint"><b>Connect OBS:</b> open OBS › <b>Tools › WebSocket Server Settings</b> › tick <b>Enable WebSocket server</b>, then put its password in <b>Settings</b> here. ${S.obs.error ? "<br><span style='opacity:.8'>"+esc(S.obs.error)+"</span>" : ""}</div>`;
+}
+
+function buildView() {
+  const m = $("#main");
+  let h = `<div id="obsHint"></div>`;
+  if (showSettings) h += $("#tSettings").innerHTML;
+  if (!S.role) h += roleView();
+  else if (S.role === "studio") h += studioView();
+  else h += vanView();
+  m.innerHTML = h;
+  if (showSettings) fillSettings();
+}
+
+function roleView() {
+  return `<div class="card"><h2 class="big">How is this computer being used?</h2><p class="sub">You can change this later in Settings.</p>
+  <div class="grid2" style="margin-top:16px">
+  <button class="role" data-act="role" data-role="studio"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A7E08A" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+  <span><b>This is the Studio</b><span class="sub">Receives the live picture from the van as an OBS source.</span></span></button>
+  <button class="role" data-act="role" data-role="van"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FCD9A6" stroke-width="1.8" aria-hidden="true"><path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+  <span><b>This is the Van</b><span class="sub">Sends the live programme from OBS to the studio.</span></span></button>
+  </div></div>`;
+}
+
+// ------------------------------------------------------------ studio
+function studioView() {
+  let h = `<div class="card nodock"><div class="row"><div class="grow"><h2>Vans</h2><p class="sub">Each van appears in OBS as its own source, in the scene "Van Link".</p></div>
+  <input id="newVanName" placeholder="Name, e.g. Stadium van" style="max-width:220px"><button class="primary" data-act="addVan">Add a van</button></div>${note("add")}</div>`;
+  if (!S.vans || !S.vans.length) h += `<div class="card"><p class="sub">No vans yet. Click <b>Add a van</b> to create a pairing code to send to the van.</p></div>`;
+  for (const v of S.vans || []) {
+    h += `<div class="card" id="v_${v.id}">
+    <div class="row"><h2 class="grow">${esc(v.name)}</h2><span class="sub" id="v_${v.id}_src"></span></div>
+    <div id="v_${v.id}_mon" style="margin-top:10px"></div>
+    <details id="v_${v.id}_pair" ${v.hasReply ? "" : "open"}><summary>Pairing</summary>
+      <div class="steps" style="margin-top:12px">
+      <div class="step"><div><b>Send this code to the van</b> (WhatsApp, SMS or email)
+        <textarea readonly id="v_${v.id}_code">${esc(v.code)}</textarea>
+        <div class="row" style="margin-top:6px"><button data-act="copy" data-src="v_${v.id}_code">Copy code</button>
+        <a href="${share("Van Link code from the studio for "+v.name+". Paste it in Van Link on the van computer:", v.code)}" target="_blank" rel="noopener"><button>Share on WhatsApp</button></a></div></div></div>
+      <div class="step"><div><b>Paste the reply code the van sends back</b>
+        <textarea id="v_${v.id}_reply" placeholder="VL1…"></textarea>
+        <div class="row" style="margin-top:6px"><button class="primary" data-act="reply" data-id="${v.id}">Connect</button></div>${note("reply"+v.id)}
+        <p class="sub" style="margin-top:6px">If this studio is directly reachable, the van connects even before you paste its reply.</p></div></div>
+      </div></details>
+    <details class="nodock"><summary>Advanced</summary><div id="v_${v.id}_adv" class="mono" style="margin-top:8px"></div>
+      <button class="danger" style="margin-top:10px" data-act="removeVan" data-id="${v.id}">Remove this van</button></details>
+    </div>`;
+  }
+  return h;
+}
+
+function studioMon(v) {
+  const s = v.snap, p = s.peer || {};
+  let b;
+  if (!s.connected) b = v.hasReply ? ["warn","Connecting to the van…"] : ["idle","Waiting for the van to pair"];
+  else if (s.liveHere) b = ["good", "Receiving van live · " + since(v.id, true)];
+  else if (p.live) b = ["warn","The van is sending – waiting for the picture…"];
+  else b = ["idle","Van connected · not sending yet"];
+  if (!(s.connected && s.liveHere)) since(v.id, false);
+  return `<div class="banner ${b[0]}"><span class="dot"></span>${esc(b[1])}</div>
+  <div class="grid2" style="margin-top:10px">
+   <div class="side"><h3>${esc(p.n || v.name)} (sending)</h3>
+    <div class="kv"><span>Signal</span><span>${bars(s.connected ? p.sig : 0)}${esc(s.connected ? s.peerSignalWord : "—")}</span></div>
+    <div class="kv"><span>Upload</span><span>${s.connected && p.kbps ? mbps(p.kbps) : "—"}</span></div>
+    <div class="kv"><span>OBS in the van</span><span>${s.connected ? (p.obs ? "Sending to Van Link" : "Not streaming") : "—"}</span></div>
+   </div>
+   <div class="side"><h3>Studio (receiving)</h3>
+    <div class="kv"><span>Signal</span><span>${bars(s.signal)}${esc(s.signalWord)}</span></div>
+    <div class="kv"><span>Delay</span><span>${s.connected ? delay(s.delayMs) : "—"}</span></div>
+    <div class="kv"><span>Missing data</span><span>${s.liveHere ? s.repairPct.toFixed(1)+"% (repaired)" : "—"}</span></div>
+    <div class="kv"><span>Route</span><span>${esc(s.route || "—")}${s.encrypted ? '<span class="tag">Encrypted</span>' : ""}</span></div>
+   </div>
+  </div>${events(s)}`;
+}
+
+// ------------------------------------------------------------ van
+function vanView() {
+  if (!S.van) return `<div class="card"><h2 class="big">Pair with your studio</h2><p class="sub">Paste the code the studio sent you.</p>
+    <textarea id="studioCode" placeholder="VL1…" style="margin-top:12px"></textarea>
+    <div class="row" style="margin-top:8px"><button class="primary" data-act="pair">Pair</button></div>${note("pair")}</div>`;
+  return `<div class="card">
+   <div id="vanMon"></div>
+   <div class="row" style="margin-top:12px"><button class="live" id="liveBtn" data-act="golive" style="flex:1">GO LIVE</button></div>${note("live")}
+   <details id="vanPair"><summary>Reply code for the studio</summary>
+     <p class="sub" style="margin-top:8px">Send this back to the studio so it can dial you.</p>
+     <textarea readonly id="replyCode">${esc(S.van.reply)}</textarea>
+     <div class="row" style="margin-top:6px"><button data-act="copy" data-src="replyCode">Copy code</button>
+     <a href="${share("Van Link reply code from the van. Paste it in Van Link at the studio:", S.van.reply)}" target="_blank" rel="noopener"><button>Share on WhatsApp</button></a></div>
+   </details>
+   <details class="nodock"><summary>Advanced</summary><div id="vanAdv" class="mono" style="margin-top:8px"></div>
+     <button class="danger" style="margin-top:10px" data-act="unpair">Forget this studio</button></details>
+  </div>`;
+}
+
+function vanMon() {
+  const s = S.van.snap, p = s.peer || {}, streaming = S.van.streaming;
+  let b;
+  if (!s.connected) b = ["warn","Connecting to the studio…"];
+  else if (streaming && s.peerLive) b = ["onair","LIVE AT STUDIO · " + since("van", true)];
+  else if (streaming) b = ["warn","Sending – waiting for the studio to confirm…"];
+  else b = ["good","Connected to " + (p.n || "the studio") + " · ready to go live"];
+  if (!(s.connected && streaming && s.peerLive)) since("van", false);
+  let tip = "";
+  if (streaming && s.connected && s.signal && s.signal <= 2) tip = `<div class="hint" style="margin-top:10px"><b>Signal is weak.</b> Keep the Program as your only feed, lower the bitrate in OBS (Settings › Output), or move to better coverage. Van Link is repairing lost data to keep you on air.</div>`;
+  return `<div class="banner ${b[0]}"><span class="dot"></span>${esc(b[1])}</div>${tip}
+  <div class="grid2" style="margin-top:10px">
+   <div class="side"><h3>Your upload (van)</h3>
+    <div class="kv"><span>Signal</span><span>${bars(s.signal)}${esc(s.signalWord)}</span></div>
+    <div class="kv"><span>Sending</span><span>${streaming && s.kbps ? mbps(s.kbps) : "—"}</span></div>
+    <div class="kv"><span>Feed</span><span>Program (primary)</span></div>
+   </div>
+   <div class="side"><h3>Studio reception</h3>
+    <div class="kv"><span>Signal</span><span>${bars(s.connected ? p.sig : 0)}${esc(s.connected ? s.peerSignalWord : "—")}</span></div>
+    <div class="kv"><span>Delay to studio</span><span>${s.connected ? delay(s.delayMs) : "—"}</span></div>
+    <div class="kv"><span>Missing data</span><span>${s.connected && p.live ? p.rep.toFixed(1)+"% (repaired)" : "—"}</span></div>
+    <div class="kv"><span>Route</span><span>${esc(s.route || "—")}${s.encrypted ? '<span class="tag">Encrypted</span>' : ""}</span></div>
+   </div>
+  </div>${events(s)}`;
+}
+
+function events(s) {
+  const ev = (s.events || []).slice(-4).reverse();
+  if (!ev.length) return "";
+  return `<ul class="events nodock">${ev.map(e => `<li>${new Date(e.at).toLocaleTimeString()} – ${esc(e.text)}</li>`).join("")}</ul>`;
+}
+
+function advanced(s) {
+  return `Our addresses: ${esc((s.candidates||[]).join(", ") || "—")}<br>
+  Suggested delay buffer: ${s.recLatencyMs} ms · Link capacity: ${s.linkKbps ? mbps(s.linkKbps) : "—"} · Data so far: ${s.totalMb.toFixed(1)} MB · Drops: ${s.drops}`;
+}
+
+// ------------------------------------------------------------ update in place
+function updateView() {
+  $("#obsHint").innerHTML = obsHint();
+  if (S.role === "studio") for (const v of S.vans || []) {
+    const mon = $("#v_" + v.id + "_mon"); if (!mon) continue;
+    mon.innerHTML = studioMon(v);
+    $("#v_" + v.id + "_src").textContent = v.obsReady ? "OBS source: " + v.obsSource : (S.obs.connected ? "Creating OBS source…" : "");
+    $("#v_" + v.id + "_adv").innerHTML = advanced(v.snap);
+    const pair = $("#v_" + v.id + "_pair");
+    if (v.snap.connected && pair.open && !pair.dataset.touched) pair.open = false;
+  }
+  if (S.role === "van" && S.van) {
+    $("#vanMon").innerHTML = vanMon();
+    $("#vanAdv").innerHTML = advanced(S.van.snap);
+    const btn = $("#liveBtn");
+    if (S.van.streaming) { btn.textContent = "STOP"; btn.dataset.act = "stop"; btn.className = ""; }
+    else { btn.textContent = "GO LIVE"; btn.dataset.act = "golive"; btn.className = "live"; }
+    btn.disabled = !S.obs.connected || !S.van.snap.connected;
+    btn.title = !S.obs.connected ? "Connect OBS first" : !S.van.snap.connected ? "Waiting for the connection to the studio" : "";
+    const vp = $("#vanPair");
+    if (vp && !vp.dataset.touched) vp.open = !S.van.snap.connected;
+  }
+  if (showSettings) updateSettings();
+}
+
+// ------------------------------------------------------------ settings
+function fillSettings() {
+  $("#sName").value = S.name || "";
+  $("#sObsAddr").value = S.obs.addr || "";
+  $("#sLat").value = String(S.settings.latencyMs);
+  if ($("#sLat").value !== String(S.settings.latencyMs)) { const o=document.createElement("option"); o.value=o.textContent=S.settings.latencyMs; $("#sLat").append(o); $("#sLat").value=String(S.settings.latencyMs); }
+  $("#sStun").checked = S.settings.useStun;
+  $("#ver").textContent = S.version;
+  $("#sLat").disabled = S.role === "van";
+  $("#setupText").textContent = S.setup.supported
+    ? "Windows will ask \"Do you want to allow this app to make changes?\". Click Yes and Van Link adds its firewall rule. Restore removes it again."
+    : "This computer needs no system changes for Van Link.";
+}
+function updateSettings() {
+  const t = S.netTest, ntOut = $("#ntOut");
+  $("#ntBtn").disabled = S.testing;
+  $("#ntBtn").textContent = S.testing ? "Testing…" : "Run network test";
+  if (t) {
+    const cls = t.verdict === "limited" ? "warn" : "good";
+    ntOut.innerHTML = `<div class="banner ${cls}" style="margin-top:10px;font-size:14px">${esc(t.summary)}</div>
+    <div class="side" style="margin-top:8px">
+    <div class="kv"><span>IPv6</span><span>${t.ipv6Internet ? "Working" : t.ipv6Address ? "Address only" : "Not available"}</span></div>
+    <div class="kv"><span>Public IPv4</span><span>${esc(t.publicIpv4 || "—")}${t.sharedIpv4 ? " (shared)" : ""}</span></div>
+    <div class="kv"><span>Network type</span><span>${{relaxed:"Relaxed (good for direct dialling)",strict:"Strict",unknown:"Not checked"}[t.gate]}</span></div></div>
+    ${(t.advice||[]).map(a => `<p class="sub" style="margin-top:6px">• ${esc(a)}</p>`).join("")}`;
+  }
+  $("#setupBtn").disabled = !S.setup.supported;
+  $("#restoreBtn").disabled = !S.setup.supported;
+}
+
+// ------------------------------------------------------------ actions
+document.addEventListener("toggle", e => { if (e.target.tagName === "DETAILS") e.target.dataset.touched = "1"; }, true);
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const act = el.dataset.act;
+  const done = (k, text, err) => { notes[k] = {text, err}; viewKey = ""; refresh(); setTimeout(() => { delete notes[k]; viewKey=""; }, 8000); };
+  try {
+    switch (act) {
+      case "role": await api("/api/role", {role: el.dataset.role}); break;
+      case "addVan": await api("/api/studio/add", {name: $("#newVanName").value}); done("add", "Van added. Send its code to the van."); break;
+      case "reply": await api("/api/studio/reply", {id: el.dataset.id, code: $("#v_"+el.dataset.id+"_reply").value}); done("reply"+el.dataset.id, "Dialling the van…"); break;
+      case "removeVan": if (confirm("Remove this van and its OBS source?")) await api("/api/studio/remove", {id: el.dataset.id}); break;
+      case "pair": await api("/api/van/pair", {code: $("#studioCode").value}); done("pair", "Paired. Send the reply code back to the studio."); break;
+      case "unpair": if (confirm("Forget this studio? You will need a new code to reconnect.")) await api("/api/van/unpair"); break;
+      case "golive": el.disabled = true; await api("/api/van/golive"); break;
+      case "stop": if (confirm("Stop sending to the studio?")) await api("/api/van/stop"); break;
+      case "copy": { const t = $("#"+el.dataset.src); t.select(); try { await navigator.clipboard.writeText(t.value); } catch { document.execCommand("copy"); } el.textContent = "Copied"; setTimeout(() => el.textContent = "Copy code", 2000); return; }
+      case "closeSettings": showSettings = false; break;
+      case "saveSettings": {
+        const body = {name: $("#sName").value, obsAddr: $("#sObsAddr").value, useStun: $("#sStun").checked};
+        if (S.role !== "van") body.latencyMs = +$("#sLat").value;
+        if ($("#sObsPass").value) body.obsPassword = $("#sObsPass").value;
+        await api("/api/settings", body); $("#sMsg").className = "msg ok"; $("#sMsg").textContent = "Saved";
+        if (S.role === "studio" && body.latencyMs !== S.settings.latencyMs) $("#sMsg").textContent = "Saved. New pairing codes use the new delay.";
+        return;
+      }
+      case "quit": if (confirm("Quit Van Link? The link to the other side stops.")) { await api("/api/quit"); document.body.innerHTML = "<main><div class='card'><h2>Van Link has stopped.</h2><p class='sub'>Open it again from the Start menu or desktop.</p></div></main>"; } return;
+      case "netTest": await api("/api/nettest"); break;
+      case "setup": case "restore": { const r = await api("/api/"+act); $("#setupMsg").className = "msg " + (r.done?"ok":"err"); $("#setupMsg").textContent = r.message; return; }
+      case "changeRole": if (confirm("Change role? Existing pairings on this computer will be removed.")) { await api("/api/role", {role: S.role === "studio" ? "van" : "studio"}); showSettings = false; } break;
+    }
+  } catch (err) {
+    const k = {addVan:"add", reply:"reply"+el.dataset.id, pair:"pair", golive:"live", stop:"live"}[act];
+    if (k) done(k, err.message, true); else alert(err.message);
+    return;
+  }
+  viewKey = ""; refresh();
+});
+$("#gear").addEventListener("click", () => { showSettings = !showSettings; viewKey = ""; render(); window.scrollTo(0,0); });
+
+refresh();
+setInterval(refresh, 1000);
+</script>
+</body>
+</html>

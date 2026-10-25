@@ -1,0 +1,23 @@
+1 ICON "vanlink.ico"
+1 VERSIONINFO
+FILEVERSION 0,1,0,0
+PRODUCTVERSION 0,1,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "CompanyName", "Gaz Media Productions"
+      VALUE "FileDescription", "Van Link - live video from the van to the studio"
+      VALUE "ProductName", "Van Link"
+      VALUE "FileVersion", "0.1.0"
+      VALUE "ProductVersion", "0.1.0"
+      VALUE "OriginalFilename", "VanLink.exe"
+      VALUE "LegalCopyright", "(c) 2026 Gaz Media Productions"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1200
+  END
+END
