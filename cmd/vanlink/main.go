@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/GAZMEDIA2/vanlink/internal/app"
+	"github.com/GAZMEDIA2/vanlink/internal/obsdock"
 	"github.com/GAZMEDIA2/vanlink/internal/sys"
 )
 
@@ -39,7 +40,25 @@ func main() {
 	port := flag.Int("port", 8765, "port for the Van Link screen (this computer only)")
 	cfgDir := flag.String("config-dir", "", "where settings are kept (default: your user settings folder)")
 	noBrowser := flag.Bool("no-browser", false, "do not open the screen automatically")
+	background := flag.Bool("background", false, "start without showing the window (used when Windows starts)")
+	installPanel := flag.Bool("install-obs-panel", false, "add the Van Link panel to OBS and exit")
+	removePanel := flag.Bool("remove-obs-panel", false, "remove the Van Link panel from OBS and exit")
 	flag.Parse()
+
+	dockURL := "http://127.0.0.1:" + strconv.Itoa(*port) + "/?dock=1"
+	if *installPanel || *removePanel {
+		var err error
+		if *installPanel {
+			err = obsdock.Install(dockURL)
+		} else {
+			err = obsdock.Remove()
+		}
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
 
 	if version != "dev" {
 		app.Version = version
@@ -47,10 +66,14 @@ func main() {
 	log.SetFlags(log.Ldate | log.Ltime)
 	setupLogFile(*cfgDir)
 
-	// Already running? Just show its screen instead of starting a second copy.
+	// Already running? Bring its window forward instead of starting a second copy.
 	if url := runningInstance(*port); url != "" {
-		if !*noBrowser {
-			openBrowser(url)
+		if !*noBrowser && !*background {
+			req, _ := http.NewRequest("POST", url+"api/show", nil)
+			req.Header.Set("X-VanLink", "1")
+			if r, err := (&http.Client{Timeout: 2 * time.Second}).Do(req); err == nil {
+				r.Body.Close()
+			}
 		}
 		return
 	}
@@ -65,7 +88,14 @@ func main() {
 	}
 	url := "http://127.0.0.1:" + strconv.Itoa(p) + "/"
 	log.Printf("Van Link screen: %s", url)
-	log.Printf("To dock it inside OBS: View > Docks > Custom Browser Docks > add %s?dock=1", url)
+	a.SetDockURL(url + "?dock=1")
+	startWithWindows()
+	// First run: put the Van Link panel into OBS (only possible while OBS is closed).
+	if !obsdock.Installed(url+"?dock=1") && obsdock.OBSFound() && !obsdock.OBSRunning() {
+		if err := obsdock.Install(url + "?dock=1"); err == nil {
+			log.Printf("Van Link panel added to OBS")
+		}
+	}
 
 	srv := &http.Server{Handler: a.Handler(), ReadHeaderTimeout: 10 * time.Second}
 	go func() {
@@ -73,16 +103,18 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
-	if !*noBrowser {
-		openBrowser(url)
-	}
-
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-	select {
-	case <-stop:
-	case <-a.QuitRequested():
-	}
+	quit := make(chan struct{})
+	go func() {
+		select {
+		case <-stop:
+		case <-a.QuitRequested():
+		}
+		close(quit)
+	}()
+	// The window runs on the main thread until Van Link quits.
+	runUI(url, a.ShowRequested(), quit, *noBrowser || *background)
 	log.Printf("Van Link stopping")
 	srv.Close()
 }

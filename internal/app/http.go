@@ -78,6 +78,8 @@ func (a *App) Handler() http.Handler {
 	post("/api/nettest", func(r *http.Request) (any, error) { a.RunNetTest(); return nil, nil })
 	post("/api/setup", func(r *http.Request) (any, error) { return a.Setup(), nil })
 	post("/api/restore", func(r *http.Request) (any, error) { return a.Restore(), nil })
+	post("/api/show", func(r *http.Request) (any, error) { a.RequestShow(); return nil, nil })
+	post("/api/obspanel", func(r *http.Request) (any, error) { return nil, a.InstallOBSPanel() })
 	post("/api/quit", func(r *http.Request) (any, error) {
 		go func() { time.Sleep(300 * time.Millisecond); a.RequestQuit() }()
 		return nil, nil

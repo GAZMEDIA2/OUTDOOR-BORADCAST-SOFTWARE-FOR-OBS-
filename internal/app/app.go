@@ -16,6 +16,7 @@ import (
 
 	"github.com/GAZMEDIA2/vanlink/internal/link"
 	"github.com/GAZMEDIA2/vanlink/internal/netx"
+	"github.com/GAZMEDIA2/vanlink/internal/obsdock"
 	"github.com/GAZMEDIA2/vanlink/internal/obsws"
 	"github.com/GAZMEDIA2/vanlink/internal/pairing"
 	"github.com/GAZMEDIA2/vanlink/internal/sys"
@@ -41,6 +42,30 @@ type App struct {
 	quit     chan struct{}
 	userQuit chan struct{}
 	quitOnce sync.Once
+	showReq  chan struct{}
+	dockURL  string
+}
+
+// ShowRequested delivers "bring the window forward" requests.
+func (a *App) ShowRequested() <-chan struct{} { return a.showReq }
+
+// RequestShow asks for the window to be shown (when Van Link is opened again).
+func (a *App) RequestShow() {
+	select {
+	case a.showReq <- struct{}{}:
+	default:
+	}
+}
+
+// SetDockURL tells the app the address of its OBS panel.
+func (a *App) SetDockURL(u string) { a.mu.Lock(); a.dockURL = u; a.mu.Unlock() }
+
+// InstallOBSPanel adds the Van Link panel to OBS.
+func (a *App) InstallOBSPanel() error {
+	a.mu.Lock()
+	u := a.dockURL
+	a.mu.Unlock()
+	return obsdock.Install(u)
 }
 
 // QuitRequested is closed when the operator clicks Quit Van Link.
@@ -59,7 +84,7 @@ type studioVan struct {
 
 // New loads settings and restarts any saved links.
 func New(configDir string) *App {
-	a := &App{store: loadStore(configDir), studio: map[string]*studioVan{}, quit: make(chan struct{}), userQuit: make(chan struct{})}
+	a := &App{store: loadStore(configDir), studio: map[string]*studioVan{}, quit: make(chan struct{}), userQuit: make(chan struct{}), showReq: make(chan struct{}, 1)}
 	cfg := a.store.get()
 	switch cfg.Role {
 	case "studio":
@@ -488,8 +513,9 @@ type State struct {
 		Streaming bool          `json:"streaming"`
 		Snap      link.Snapshot `json:"snap"`
 	} `json:"van"`
-	NetTest *netx.TestResult `json:"netTest"`
-	Testing bool             `json:"testing"`
+	NetTest  *netx.TestResult `json:"netTest"`
+	Testing  bool             `json:"testing"`
+	OBSPanel bool             `json:"obsPanel"`
 }
 
 // State builds the screen state.
@@ -518,6 +544,7 @@ func (a *App) State() State {
 		}{a.vanReply, a.vanLive, a.van.Snapshot()}
 	}
 	s.NetTest, s.Testing = a.netTest, a.testing
+	s.OBSPanel = a.dockURL != "" && obsdock.Installed(a.dockURL)
 	return s
 }
 

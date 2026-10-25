@@ -116,6 +116,12 @@ body.dock .card{padding:12px}
 </div>
 </div>
 <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+<h2>Van Link panel in OBS</h2>
+<p class="sub" id="panelText"></p>
+<div class="row" style="margin-top:10px"><button data-act="obsPanel" id="panelBtn">Add the panel to OBS</button></div>
+<div class="msg" id="panelMsg"></div>
+<p class="sub" style="margin-top:10px">Closing this window keeps Van Link running, so the OBS panel and any broadcast carry on. To stop Van Link completely, use Quit below.</p>
+<hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
 <div class="row"><button class="danger" data-act="changeRole">Change this computer's role</button><button data-act="quit">Quit Van Link</button><span class="sub grow" style="text-align:right">Van Link <span id="ver"></span> · © Gaz Media Productions</span></div>
 </div>
 </template>
@@ -347,6 +353,10 @@ function updateSettings() {
     <div class="kv"><span>Network type</span><span>${{relaxed:"Relaxed (good for direct dialling)",strict:"Strict",unknown:"Not checked"}[t.gate]}</span></div></div>
     ${(t.advice||[]).map(a => `<p class="sub" style="margin-top:6px">• ${esc(a)}</p>`).join("")}`;
   }
+  $("#panelText").textContent = S.obsPanel
+    ? "The Van Link panel is in OBS. If you don't see it, open OBS and click View › Docks › Van Link."
+    : "Adds this screen as a panel inside OBS. Close OBS first, then click the button.";
+  $("#panelBtn").textContent = S.obsPanel ? "Add the panel again" : "Add the panel to OBS";
   $("#setupBtn").disabled = !S.setup.supported;
   $("#restoreBtn").disabled = !S.setup.supported;
 }
@@ -378,6 +388,7 @@ document.addEventListener("click", async e => {
         return;
       }
       case "quit": if (confirm("Quit Van Link? The link to the other side stops.")) { await api("/api/quit"); document.body.innerHTML = "<main><div class='card'><h2>Van Link has stopped.</h2><p class='sub'>Open it again from the Start menu or desktop.</p></div></main>"; } return;
+      case "obsPanel": try { await api("/api/obspanel"); $("#panelMsg").className="msg ok"; $("#panelMsg").textContent="Done. Open OBS: the Van Link panel is under View › Docks."; } catch (e) { $("#panelMsg").className="msg err"; $("#panelMsg").textContent=e.message; } return;
       case "netTest": await api("/api/nettest"); break;
       case "setup": case "restore": { const r = await api("/api/"+act); $("#setupMsg").className = "msg " + (r.done?"ok":"err"); $("#setupMsg").textContent = r.message; return; }
       case "changeRole": if (confirm("Change role? Existing pairings on this computer will be removed.")) { await api("/api/role", {role: S.role === "studio" ? "van" : "studio"}); showSettings = false; } break;

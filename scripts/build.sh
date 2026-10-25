@@ -16,9 +16,11 @@ if command -v x86_64-w64-mingw32-windres >/dev/null; then
   (cd packaging/windows && x86_64-w64-mingw32-windres --preprocessor=cpp -O coff -o ../../cmd/vanlink/rsrc_windows_amd64.syso vanlink.rc)
 fi
 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "${LDFLAGS} -H windowsgui" -o dist/VanLink.exe ./cmd/vanlink
-rm -f cmd/vanlink/rsrc_windows_amd64.syso
+cp cmd/vanlink/rsrc_windows_amd64.syso cmd/vanlink-obs-panel/ 2>/dev/null || true
+GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "${LDFLAGS}" -o dist/vanlink-obs-panel.exe ./cmd/vanlink-obs-panel
+rm -f cmd/vanlink/rsrc_windows_amd64.syso cmd/vanlink-obs-panel/rsrc_windows_amd64.syso
 if command -v makensis >/dev/null; then
-  (cd packaging/windows && makensis -V2 -DVERSION="${VERSION}" installer.nsi)
+  (cd packaging/windows && makensis -V2 -DVERSION="${VERSION}" installer.nsi && makensis -V2 -DVERSION="${VERSION}" obs-panel.nsi)
 else
   echo "makensis not found: skipping the installer (dist/VanLink.exe still works on its own)"
 fi

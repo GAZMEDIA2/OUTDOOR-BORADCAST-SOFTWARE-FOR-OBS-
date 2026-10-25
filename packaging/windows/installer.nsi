@@ -32,7 +32,7 @@ VIAddVersionKey "CompanyName" "${COMPANY}"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "welcome.bmp"
 !define MUI_WELCOMEPAGE_TITLE "Welcome to ${APP} by ${COMPANY}"
-!define MUI_WELCOMEPAGE_TEXT "Van Link sends live video from your outside broadcast van straight to your studio over the internet, with OBS Studio.$\r$\n$\r$\nInstall it on both the van computer and the studio computer.$\r$\n$\r$\nYou will also need OBS Studio 28 or newer.$\r$\n$\r$\nClick Next to continue."
+!define MUI_WELCOMEPAGE_TEXT "Van Link sends live video from your outside broadcast van straight to your studio over the internet, with OBS Studio.$\r$\n$\r$\nInstall it on both the van computer and the studio computer. Van Link opens in its own window and also adds a Van Link panel inside OBS.$\r$\n$\r$\nYou will also need OBS Studio 28 or newer.$\r$\n$\r$\nClick Next to continue."
 !define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_TEXT "Open ${APP} now"
 !define MUI_FINISHPAGE_RUN_FUNCTION OpenApp
@@ -93,6 +93,7 @@ Section "Uninstall"
   nsExec::Exec 'taskkill /IM ${EXE} /F'
   Sleep 500
   nsExec::Exec 'netsh advfirewall firewall delete rule name="${APP}"'
+  nsExec::Exec 'reg delete HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v VanLink /f'
   Delete "$INSTDIR\${EXE}"
   Delete "$INSTDIR\vanlink.ico"
   Delete "$INSTDIR\How to connect OBS.txt"
