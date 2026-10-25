@@ -154,6 +154,21 @@ func (a *App) RefreshLicence() error {
 	return err
 }
 
+// OpenURL opens a web address in the normal browser (set by the program).
+var OpenURL = func(string) {}
+
+// OpenWeb opens a page of the Van Link website. Only known pages are allowed,
+// so nothing else can use the app to open arbitrary addresses.
+func (a *App) OpenWeb(page string) error {
+	allowed := map[string]bool{"": true, "signup.php": true, "login.php": true, "account.php": true,
+		"buy.php?plan=standard": true, "buy.php?plan=pro": true, "#pricing": true}
+	if !allowed[page] {
+		return errors.New("unknown page")
+	}
+	OpenURL(strings.TrimRight(LicenceServer, "/") + "/" + page)
+	return nil
+}
+
 // LicenceRequired can be switched off for automated tests only.
 var LicenceRequired = true
 

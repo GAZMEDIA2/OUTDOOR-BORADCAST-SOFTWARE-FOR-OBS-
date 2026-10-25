@@ -39,10 +39,10 @@ To continue in a new Claude session, share this file and say: *"Continue the Van
 ### Licensing in the app (Go), partly done
 - `internal/licence`: verifies signed licences and decides locked/unlocked (tested: expiry offline, clock rollback, copied or forged licence, owner unlimited).
 - `internal/app/account.go`: sign-in, sign-out, redeem registration code, periodic check-in, trial-minute counting (van side), enforcement (stops GO LIVE, stops the stream, pauses forwarding when locked, limits number of vans).
-- **NOT DONE: the sign-in / lock / registration-code screens in `web/index.html`.** The API routes exist: `/api/signin`, `/api/signout`, `/api/redeem`, `/api/refresh`, and `/api/state` returns `licence` (ok, reason, message, plan, planName, email, expires, maxVans, trialLeft) and `server`.
-- ⚠️ **Do not ship a new installer until those screens exist.** The current code requires a licence, so without the sign-in screen the app would lock with no way to sign in. v0.1.3 (no licensing) is the last safe installer.
+- **DONE (v0.2.0): sign-in / lock / registration-code screens** in `web/index.html`, plan pill in the header, trial minutes, Settings › Account and licence, `/api/openweb` (opens only known website pages). Tested end to end against a copy of the website (trial sign-in, lock after licence ends, OBS panel locks too, code unlocks Pro, sign-out, owner unlimited). The API routes exist: `/api/signin`, `/api/signout`, `/api/redeem`, `/api/refresh`, and `/api/state` returns `licence` (ok, reason, message, plan, planName, email, expires, maxVans, trialLeft) and `server`.
+- v0.2.0 installers require signing in to vanlink.gazgoc.com.ng. `VANLINK_SERVER` env var points the app at a test copy of the website (licences are still checked with the built-in public key).
 
-### The website (`website/`, PHP 8 + MySQL), code complete, NOT uploaded yet
+### The website (`website/`, PHP 8 + MySQL), LIVE at vanlink.gazgoc.com.ng (owner account created, install.php removed)
 - Pages:
   - `index.php`: product page, with pricing and images
   - `signup.php`: starts the trial

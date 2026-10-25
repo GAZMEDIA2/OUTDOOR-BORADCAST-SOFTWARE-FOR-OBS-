@@ -4,7 +4,7 @@
 # (x86_64-w64-mingw32-windres) for the Windows icon.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-VERSION="${VERSION:-0.1.3}"
+VERSION="${VERSION:-0.2.0}"
 LDFLAGS="-s -w -X main.version=${VERSION}"
 mkdir -p dist
 

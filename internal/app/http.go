@@ -85,6 +85,7 @@ func (a *App) Handler() http.Handler {
 	post("/api/signout", func(r *http.Request) (any, error) { a.SignOut(); return nil, nil })
 	post("/api/redeem", func(r *http.Request) (any, error) { return nil, a.Redeem(read(r).Code) })
 	post("/api/refresh", func(r *http.Request) (any, error) { return nil, a.RefreshLicence() })
+	post("/api/openweb", func(r *http.Request) (any, error) { return nil, a.OpenWeb(read(r).Name) })
 	post("/api/show", func(r *http.Request) (any, error) { a.RequestShow(); return nil, nil })
 	post("/api/obspanel", func(r *http.Request) (any, error) { return nil, a.InstallOBSPanel() })
 	post("/api/quit", func(r *http.Request) (any, error) {

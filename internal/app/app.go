@@ -25,7 +25,7 @@ import (
 )
 
 // Version of Van Link.
-var Version = "0.1.3"
+var Version = "0.2.0"
 
 // App is the running program.
 type App struct {
@@ -585,6 +585,7 @@ type State struct {
 	} `json:"van"`
 	Licence  licence.Status   `json:"licence"`
 	Server   string           `json:"server"`
+	Account  string           `json:"account"` // signed-in email ("" = signed out)
 	NetTest  *netx.TestResult `json:"netTest"`
 	Testing  bool             `json:"testing"`
 	OBSPanel bool             `json:"obsPanel"`
@@ -616,6 +617,9 @@ func (a *App) State() State {
 		}{a.vanReply, a.vanLive, a.van.Snapshot()}
 	}
 	s.Licence, s.Server = a.Licence(), LicenceServer
+	if cfg.Account.Token != "" {
+		s.Account = cfg.Account.Email
+	}
 	s.NetTest, s.Testing = a.netTest, a.testing
 	s.OBSPanel = a.dockURL != "" && obsdock.Installed(a.dockURL)
 	return s

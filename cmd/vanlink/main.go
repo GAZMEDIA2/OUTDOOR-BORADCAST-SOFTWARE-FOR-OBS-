@@ -85,6 +85,10 @@ func main() {
 	}
 	log.Printf("Van Link %s starting", app.Version)
 
+	app.OpenURL = openBrowser
+	if v := os.Getenv("VANLINK_SERVER"); v != "" { // testing against a copy of the website
+		app.LicenceServer = v // licences are still checked against the built-in public key
+	}
 	a := app.New(*cfgDir)
 	defer a.Close()
 

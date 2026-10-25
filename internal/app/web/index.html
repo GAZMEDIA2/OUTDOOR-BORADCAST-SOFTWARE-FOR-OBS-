@@ -66,6 +66,10 @@ details summary{cursor:pointer;color:var(--blueText);font-size:13px;margin-top:6
 .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#1F4D22;color:#C5EBB0;margin-left:6px;font-weight:600}
 .big{font-size:22px;font-weight:700;margin:0 0 4px}
 .hide{display:none!important}
+.auth{max-width:440px;margin:30px auto 0;width:100%}
+.auth h2{font-size:22px;margin-bottom:6px}
+.link{background:none;border:0;padding:0;min-height:0;color:var(--blueText);text-decoration:underline;font-size:13px}
+.pill.plan{color:var(--blueText);border-color:#2F5A2F}
 body.dock header .pill.ver, body.dock .nodock{display:none}
 body.dock main{padding:10px;gap:10px}
 body.dock .card{padding:12px}
@@ -77,6 +81,7 @@ body.dock .card{padding:12px}
 <div><div class="brand">Van Link</div><div class="sub nodock" style="font-size:11px;margin-top:-2px">by Gaz Media Productions</div></div>
 <span class="pill" id="rolePill"></span>
 <div class="grow"></div>
+<span class="pill plan" id="planPill"></span>
 <span class="pill" id="obsPill" title="">OBS</span>
 <button id="gear" aria-label="Settings">Settings</button>
 </header>
@@ -103,6 +108,9 @@ body.dock .card{padding:12px}
 <div class="row" style="margin-top:12px"><button class="primary" data-act="saveSettings">Save</button><span class="msg" id="sMsg"></span></div>
 </div>
 </div>
+<hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+<h2>Account and licence</h2>
+<div id="acct"></div>
 <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
 <div class="grid2">
 <div>
@@ -136,7 +144,7 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 const dock = new URLSearchParams(location.search).has("dock");
 if (dock) document.body.classList.add("dock");
 
-let S = null, viewKey = "", showSettings = false;
+let S = null, viewKey = "", showSettings = false, lastEmail = "";
 const liveSince = {};          // when "live" started, per feed, for the on-air clock
 const notes = {};              // messages under buttons, per key
 
@@ -162,12 +170,19 @@ function share(text, code) { return `https://wa.me/?text=${encodeURIComponent(te
 // ------------------------------------------------------------ render
 function render() {
   $("#rolePill").textContent = S.role === "studio" ? "Studio" : S.role === "van" ? "Van" : "Setup";
+  $("#rolePill").classList.toggle("hide", !S.licence.ok);
   const op = $("#obsPill");
   op.className = "pill " + (S.obs.connected ? "ok" : "bad");
   op.textContent = S.obs.connected ? "OBS connected" : "OBS not connected";
   op.title = S.obs.error || "";
 
-  const key = [S.role, showSettings, (S.vans||[]).map(v=>v.id+v.hasReply).join(","), S.van ? "paired" : "none"].join("|");
+  const L = S.licence, pp = $("#planPill");
+  pp.classList.toggle("hide", !S.account);
+  if (S.account) {
+    pp.className = "pill " + (L.ok ? "plan" : "bad");
+    pp.textContent = !L.ok ? "Locked" : L.trialLeft != null ? `Trial · ${Math.floor(L.trialLeft/60)} min left today` : L.planName;
+  }
+  const key = [L.ok, L.reason, S.account, showSettings, (S.vans||[]).map(v=>v.id+v.hasReply).join(","), S.van ? "paired" : "none"].join("|");
   if (key !== viewKey) { viewKey = key; buildView(); }
   updateView();
 }
@@ -182,7 +197,8 @@ function buildView() {
   const m = $("#main");
   let h = `<div id="obsHint"></div>`;
   if (showSettings) h += $("#tSettings").innerHTML;
-  if (!S.role) h += roleView();
+  if (!S.licence.ok) h += licenceView();
+  else if (!S.role) h += roleView();
   else if (S.role === "studio") h += studioView();
   else h += vanView();
   m.innerHTML = h;
@@ -197,6 +213,61 @@ function roleView() {
   <button class="role" data-act="role" data-role="van"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FCD9A6" stroke-width="1.8" aria-hidden="true"><path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
   <span><b>This is the Van</b><span class="sub">Sends the live programme from OBS to the studio.</span></span></button>
   </div></div>`;
+}
+
+// ------------------------------------------------------------ sign-in and licence
+function fmtDate(t) { return new Date(t*1000).toLocaleDateString(undefined, {day:"numeric", month:"long", year:"numeric"}); }
+function signinForm(email) {
+  return `<label for="inEmail">Email</label><input id="inEmail" type="email" autocomplete="username" value="${esc(email||lastEmail)}">
+  <label for="inPass">Password</label><input id="inPass" type="password" autocomplete="current-password">
+  <div class="row" style="margin-top:14px"><button class="primary" data-act="signin" style="flex:1">Sign in</button></div>${note("signin")}`;
+}
+function codeForm() {
+  return `<label for="regCode">Registration code</label>
+  <div class="row"><input id="regCode" placeholder="VLK-XXXX-XXXX-XXXX" style="flex:1;text-transform:uppercase;font-family:ui-monospace,Consolas,monospace">
+  <button class="primary" data-act="redeem">Activate</button></div>${note("redeem")}
+  <p class="sub" style="margin-top:6px">You get a registration code by email (and on your account page) as soon as you pay.</p>`;
+}
+function licenceView() {
+  const L = S.licence;
+  if (L.reason === "signin" || !S.account) return `<div class="card auth">
+    <h2>Sign in to Van Link</h2><p class="sub">Use the email and password of your Van Link account.</p>
+    ${signinForm()}
+    <p class="sub" style="margin-top:16px">New here? <button class="link" data-act="web" data-page="signup.php">Create a free trial account</button> · 14 days, 30 minutes of broadcasting a day.</p>
+    <p class="sub" style="margin-top:6px"><button class="link" data-act="web" data-page="#pricing">See plans and prices</button></p></div>`;
+  const again = L.reason === "invalid" || L.reason === "device";
+  let h = `<div class="card auth"><div class="banner bad"><span class="dot"></span>Van Link is locked</div>
+    <p style="margin:12px 0 4px">${esc(L.message)}</p>
+    <p class="sub">Signed in as ${esc(S.account)}${L.planName ? " · " + esc(L.planName) + (L.expires ? " until " + fmtDate(L.expires) : "") : ""}</p>`;
+  if (again) h += signinForm(S.account);
+  else if (L.reason === "expired") h += codeForm() + `<div class="row" style="margin-top:14px">
+      <button data-act="web" data-page="buy.php?plan=standard">Buy Standard · $1,100/yr</button>
+      <button data-act="web" data-page="buy.php?plan=pro">Buy Pro · $1,900/yr</button></div>
+      <p class="sub" style="margin-top:6px">Opens the Van Link website in your browser. We accept all cards.</p>`;
+  else if (L.reason === "clock") h += `<p class="sub" style="margin-top:10px">Set the correct date and time in Windows (Settings › Time &amp; language), then click Check again.</p>`;
+  h += `<div class="row" style="margin-top:16px"><button data-act="refreshLic">Check again</button><button data-act="web" data-page="account.php">My account</button>
+    <span class="grow"></span><button class="link" data-act="signout">Sign out</button></div>${note("refreshLic")}</div>`;
+  return h;
+}
+function trialHint() {
+  const L = S.licence;
+  if (!L.ok || L.trialLeft == null) return "";
+  if (L.trialLeft <= 0) return `<div class="hint"><b>Today's 30 free minutes are used up.</b> Broadcasting is available again tomorrow. <button class="link" data-act="web" data-page="buy.php?plan=standard">Buy a plan</button> to remove the limit.</div>`;
+  if (L.expires && L.expires - Date.now()/1000 < 3*86400) return `<div class="hint"><b>Your free trial ends on ${fmtDate(L.expires)}.</b> <button class="link" data-act="web" data-page="buy.php?plan=standard">Buy a plan</button> to keep broadcasting.</div>`;
+  return "";
+}
+function accountSettings() {
+  const L = S.licence;
+  if (!S.account) return `<p class="sub">Not signed in.</p>`;
+  return `<div class="grid2"><div class="side">
+    <div class="kv"><span>Email</span><span>${esc(S.account)}</span></div>
+    <div class="kv"><span>Plan</span><span>${esc(L.planName || "—")}</span></div>
+    <div class="kv"><span>${L.ok ? "Valid until" : "Status"}</span><span>${L.ok ? (L.plan === "owner" ? "Unlimited" : L.expires ? fmtDate(L.expires) : "—") : "Locked"}</span></div>
+    <div class="kv"><span>Vans allowed</span><span>${L.maxVans || "—"}</span></div></div>
+    <div>${codeForm()}</div></div>
+    <div class="row" style="margin-top:12px"><button data-act="web" data-page="account.php">My account on the website</button>
+    ${L.plan === "owner" ? "" : `<button data-act="web" data-page="buy.php?plan=standard">Buy or renew</button>`}
+    <button data-act="refreshLic">Check licence now</button><span class="grow"></span><button class="danger" data-act="signout">Sign out of this computer</button></div>${note("refreshLic")}`;
 }
 
 // ------------------------------------------------------------ studio
@@ -309,7 +380,7 @@ function advanced(s) {
 
 // ------------------------------------------------------------ update in place
 function updateView() {
-  $("#obsHint").innerHTML = obsHint();
+  $("#obsHint").innerHTML = S.licence.ok ? trialHint() + obsHint() : "";
   if (S.role === "studio") for (const v of S.vans || []) {
     const mon = $("#v_" + v.id + "_mon"); if (!mon) continue;
     mon.innerHTML = studioMon(v);
@@ -343,6 +414,7 @@ function fillSettings() {
   if ($("#sLat").value !== String(S.settings.latencyMs)) { const o=document.createElement("option"); o.value=o.textContent=S.settings.latencyMs; $("#sLat").append(o); $("#sLat").value=String(S.settings.latencyMs); }
   $("#sStun").checked = S.settings.useStun;
   $("#ver").textContent = S.version;
+  $("#acct").innerHTML = accountSettings();
   $("#sLat").disabled = S.role === "van";
   $("#setupText").textContent = S.setup.supported
     ? "Windows will ask \"Do you want to allow this app to make changes?\". Click Yes and Van Link adds its firewall rule. Restore removes it again."
@@ -378,6 +450,16 @@ document.addEventListener("click", async e => {
   try {
     switch (act) {
       case "role": await api("/api/role", {role: el.dataset.role}); break;
+      case "signin": {
+        lastEmail = $("#inEmail").value; el.disabled = true; el.textContent = "Signing in…";
+        try { await api("/api/signin", {email: $("#inEmail").value, password: $("#inPass").value}); }
+        finally { el.disabled = false; el.textContent = "Sign in"; }
+        break;
+      }
+      case "redeem": el.disabled = true; await api("/api/redeem", {code: $("#regCode").value}); done("redeem", "Code accepted. Your licence is active."); break;
+      case "refreshLic": el.disabled = true; await api("/api/refresh"); done("refreshLic", "Checked with the Van Link website."); break;
+      case "signout": if (confirm("Sign out of Van Link on this computer? Van Link stops working here until you sign in again.")) { await api("/api/signout"); showSettings = false; } break;
+      case "web": await api("/api/openweb", {name: el.dataset.page}); return;
       case "addVan": await api("/api/studio/add", {name: $("#newVanName").value}); done("add", "Van added. Send its code to the van."); break;
       case "reply": await api("/api/studio/reply", {id: el.dataset.id, code: $("#v_"+el.dataset.id+"_reply").value}); done("reply"+el.dataset.id, "Dialling the van…"); break;
       case "jump": await api("/api/studio/jump", {id: el.dataset.id}); el.textContent = "Done"; setTimeout(() => el.textContent = "Jump to live", 2000); return;
@@ -403,11 +485,16 @@ document.addEventListener("click", async e => {
       case "changeRole": if (confirm("Change role? Existing pairings on this computer will be removed.")) { await api("/api/role", {role: S.role === "studio" ? "van" : "studio"}); showSettings = false; } break;
     }
   } catch (err) {
-    const k = {addVan:"add", reply:"reply"+el.dataset.id, pair:"pair", golive:"live", stop:"live"}[act];
+    const k = {addVan:"add", reply:"reply"+el.dataset.id, pair:"pair", golive:"live", stop:"live", signin:"signin", redeem:"redeem", refreshLic:"refreshLic"}[act];
     if (k) done(k, err.message, true); else alert(err.message);
     return;
   }
   viewKey = ""; refresh();
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  if (e.target.id === "inPass" || e.target.id === "inEmail") $('[data-act="signin"]')?.click();
+  if (e.target.id === "regCode") $('[data-act="redeem"]')?.click();
 });
 $("#gear").addEventListener("click", () => { showSettings = !showSettings; viewKey = ""; render(); window.scrollTo(0,0); });
 
