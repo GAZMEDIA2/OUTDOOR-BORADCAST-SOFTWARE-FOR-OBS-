@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/netip"
 	"sort"
 	"strconv"
@@ -23,7 +24,7 @@ import (
 )
 
 // Version of Van Link.
-var Version = "0.1.0"
+var Version = "0.1.2"
 
 // App is the running program.
 type App struct {
@@ -629,7 +630,7 @@ func (a *App) UpdateSettings(u SettingsUpdate) error {
 			c.Name = strings.TrimSpace(*u.Name)
 		}
 		if u.OBSAddr != nil && strings.TrimSpace(*u.OBSAddr) != "" {
-			c.OBSAddr = strings.TrimSpace(*u.OBSAddr)
+			c.OBSAddr = NormalizeOBSAddr(*u.OBSAddr)
 		}
 		if u.OBSPassword != nil {
 			c.OBSPassword = *u.OBSPassword
@@ -672,6 +673,23 @@ func (a *App) Restore() sys.SetupResult {
 		_ = a.store.update(func(c *Config) { c.SetupDone = false })
 	}
 	return r
+}
+
+// NormalizeOBSAddr accepts "192.168.1.154", "192.168.1.154:4455",
+// "ws://host:4455" and similar, and returns "host:port" (default port 4455).
+func NormalizeOBSAddr(a string) string {
+	a = strings.TrimSpace(a)
+	for _, p := range []string{"ws://", "wss://", "http://", "https://"} {
+		a = strings.TrimPrefix(a, p)
+	}
+	a = strings.TrimSuffix(a, "/")
+	if a == "" {
+		return defaultOBSAddr
+	}
+	if _, _, err := net.SplitHostPort(a); err == nil {
+		return a
+	}
+	return net.JoinHostPort(strings.Trim(a, "[]"), "4455")
 }
 
 func nonEmpty(s, d string) string {

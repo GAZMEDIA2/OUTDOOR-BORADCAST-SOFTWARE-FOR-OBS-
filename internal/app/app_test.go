@@ -137,3 +137,14 @@ func TestFullBroadcast(t *testing.T) {
 		t.Fatal("OBS still streaming after stop")
 	}
 }
+
+func TestNormalizeOBSAddr(t *testing.T) {
+	for in, want := range map[string]string{
+		"192.168.1.154": "192.168.1.154:4455", "192.168.1.154:4460": "192.168.1.154:4460",
+		"ws://10.0.0.5:4455/": "10.0.0.5:4455", "": "127.0.0.1:4455", "localhost": "localhost:4455",
+	} {
+		if got := NormalizeOBSAddr(in); got != want {
+			t.Errorf("%q -> %q, want %q", in, got, want)
+		}
+	}
+}

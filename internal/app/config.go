@@ -70,9 +70,7 @@ func loadStore(dir string) *store {
 	if b, err := os.ReadFile(s.path); err == nil {
 		_ = json.Unmarshal(b, &s.cfg)
 	}
-	if s.cfg.OBSAddr == "" {
-		s.cfg.OBSAddr = defaultOBSAddr
-	}
+	s.cfg.OBSAddr = NormalizeOBSAddr(s.cfg.OBSAddr)
 	if s.cfg.LatencyMS == 0 {
 		s.cfg.LatencyMS = defaultLatency
 	}

@@ -66,14 +66,20 @@ func main() {
 	log.SetFlags(log.Ldate | log.Ltime)
 	setupLogFile(*cfgDir)
 
-	// Already running? Bring its window forward instead of starting a second copy.
-	if url := runningInstance(*port); url != "" {
-		if !*noBrowser && !*background {
-			req, _ := http.NewRequest("POST", url+"api/show", nil)
-			req.Header.Set("X-VanLink", "1")
-			if r, err := (&http.Client{Timeout: 2 * time.Second}).Do(req); err == nil {
-				r.Body.Close()
+	// An older version still running (e.g. after an update)? Ask it to quit.
+	if url, v := runningInstance(*port); url != "" && v != app.Version {
+		post(url + "api/quit")
+		for i := 0; i < 30; i++ {
+			time.Sleep(200 * time.Millisecond)
+			if u, _ := runningInstance(*port); u == "" {
+				break
 			}
+		}
+	}
+	// Already running? Bring its window forward instead of starting a second copy.
+	if url, _ := runningInstance(*port); url != "" {
+		if !*noBrowser && !*background {
+			post(url + "api/show")
 		}
 		return
 	}
@@ -121,21 +127,29 @@ func main() {
 
 // runningInstance returns the screen address of a Van Link that is already
 // running on this computer, if any.
-func runningInstance(port int) string {
+func runningInstance(port int) (url, version string) {
 	c := &http.Client{Timeout: 700 * time.Millisecond}
-	url := "http://127.0.0.1:" + strconv.Itoa(port) + "/"
+	url = "http://127.0.0.1:" + strconv.Itoa(port) + "/"
 	r, err := c.Get(url + "api/state")
 	if err != nil {
-		return ""
+		return "", ""
 	}
 	defer r.Body.Close()
 	var st struct {
 		Version string `json:"version"`
 	}
 	if r.StatusCode == 200 && json.NewDecoder(r.Body).Decode(&st) == nil && st.Version != "" {
-		return url
+		return url, st.Version
 	}
-	return ""
+	return "", ""
+}
+
+func post(u string) {
+	req, _ := http.NewRequest("POST", u, nil)
+	req.Header.Set("X-VanLink", "1")
+	if r, err := (&http.Client{Timeout: 2 * time.Second}).Do(req); err == nil {
+		r.Body.Close()
+	}
 }
 
 // setupLogFile writes the log next to the settings, so problems can be
