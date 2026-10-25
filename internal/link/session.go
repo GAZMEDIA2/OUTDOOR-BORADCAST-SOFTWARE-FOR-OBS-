@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/netip"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/GAZMEDIA2/vanlink/internal/netx"
@@ -72,9 +73,10 @@ type Session struct {
 	stunWait      map[[12]byte]chan netip.AddrPort
 	closed        bool
 
-	meter srtMeter
-	done  chan struct{}
-	wg    sync.WaitGroup
+	meter    srtMeter
+	disabled atomic.Bool // licence lock: video is not carried while set
+	done     chan struct{}
+	wg       sync.WaitGroup
 }
 
 // Status is what each end tells the other every second.
@@ -410,8 +412,14 @@ func routeName(a netip.Addr) string {
 	}
 }
 
+// SetEnabled turns video forwarding on or off (used when the licence locks).
+func (s *Session) SetEnabled(on bool) { s.disabled.Store(!on) }
+
 // fromPeerData: SRT arriving over the internet.
 func (s *Session) fromPeerData(b []byte, now time.Time) {
+	if s.disabled.Load() {
+		return
+	}
 	if s.cfg.Role == Studio {
 		s.meter.media(b, now)
 		_, _ = s.obs.WriteToUDPAddrPort(b, s.cfg.OBSAddr)
@@ -452,7 +460,7 @@ func (s *Session) readOBS() {
 		} else {
 			s.meter.back(pkt)
 		}
-		if peer.IsValid() {
+		if peer.IsValid() && !s.disabled.Load() {
 			s.writeTo(wrapData(pkt), peer)
 		}
 	}

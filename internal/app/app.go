@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/GAZMEDIA2/vanlink/internal/licence"
 	"github.com/GAZMEDIA2/vanlink/internal/link"
 	"github.com/GAZMEDIA2/vanlink/internal/netx"
 	"github.com/GAZMEDIA2/vanlink/internal/obsdock"
@@ -174,6 +175,13 @@ func (a *App) AddVan(name string) (string, error) {
 		if strings.EqualFold(v.Name, name) {
 			return "", errors.New("a van with that name already exists")
 		}
+	}
+	st := a.Licence()
+	if !usable(st) {
+		return "", errors.New(lockMessage(st))
+	}
+	if st.MaxVans > 0 && len(cfg.Vans) >= st.MaxVans {
+		return "", fmt.Errorf("your %s plan allows %d van(s) - upgrade to Pro for more", st.PlanName, st.MaxVans)
 	}
 	sid, key, pp := pairing.NewStudioSecrets()
 	v := VanEntry{ID: "van" + sid[:6], Name: name, Session: sid, Key: key, Passphrase: pp,
@@ -348,6 +356,9 @@ func (a *App) GoLive() error {
 	if sess == nil {
 		return errors.New("pair with the studio first")
 	}
+	if st := a.Licence(); !usable(st) {
+		return errors.New(lockMessage(st))
+	}
 	if obs == nil || !obs.Alive() {
 		return errors.New("OBS is not connected - open OBS and check Settings")
 	}
@@ -509,6 +520,10 @@ func (a *App) watchdog() {
 			}
 		}
 		sys.KeepAwake(onAir)
+		a.mu.Lock()
+		sending := a.van != nil && a.vanLive
+		a.mu.Unlock()
+		a.licenceTick(sending)
 	}
 }
 
@@ -568,6 +583,8 @@ type State struct {
 		Streaming bool          `json:"streaming"`
 		Snap      link.Snapshot `json:"snap"`
 	} `json:"van"`
+	Licence  licence.Status   `json:"licence"`
+	Server   string           `json:"server"`
 	NetTest  *netx.TestResult `json:"netTest"`
 	Testing  bool             `json:"testing"`
 	OBSPanel bool             `json:"obsPanel"`
@@ -598,6 +615,7 @@ func (a *App) State() State {
 			Snap      link.Snapshot `json:"snap"`
 		}{a.vanReply, a.vanLive, a.van.Snapshot()}
 	}
+	s.Licence, s.Server = a.Licence(), LicenceServer
 	s.NetTest, s.Testing = a.netTest, a.testing
 	s.OBSPanel = a.dockURL != "" && obsdock.Installed(a.dockURL)
 	return s

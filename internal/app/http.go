@@ -41,10 +41,12 @@ func (a *App) Handler() http.Handler {
 		})
 	}
 	type body struct {
-		Role string `json:"role"`
-		Name string `json:"name"`
-		ID   string `json:"id"`
-		Code string `json:"code"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		Role     string `json:"role"`
+		Name     string `json:"name"`
+		ID       string `json:"id"`
+		Code     string `json:"code"`
 	}
 	read := func(r *http.Request) body {
 		var b body
@@ -79,6 +81,10 @@ func (a *App) Handler() http.Handler {
 	post("/api/nettest", func(r *http.Request) (any, error) { a.RunNetTest(); return nil, nil })
 	post("/api/setup", func(r *http.Request) (any, error) { return a.Setup(), nil })
 	post("/api/restore", func(r *http.Request) (any, error) { return a.Restore(), nil })
+	post("/api/signin", func(r *http.Request) (any, error) { b := read(r); return nil, a.SignIn(b.Email, b.Password) })
+	post("/api/signout", func(r *http.Request) (any, error) { a.SignOut(); return nil, nil })
+	post("/api/redeem", func(r *http.Request) (any, error) { return nil, a.Redeem(read(r).Code) })
+	post("/api/refresh", func(r *http.Request) (any, error) { return nil, a.RefreshLicence() })
 	post("/api/show", func(r *http.Request) (any, error) { a.RequestShow(); return nil, nil })
 	post("/api/obspanel", func(r *http.Request) (any, error) { return nil, a.InstallOBSPanel() })
 	post("/api/quit", func(r *http.Request) (any, error) {

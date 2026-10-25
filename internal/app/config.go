@@ -25,6 +25,9 @@ type Config struct {
 	VanPort    int    `json:"vanPort"`
 
 	SetupDone bool `json:"setupDone"`
+
+	// Sign-in to the Van Link website and the licence it issued.
+	Account Account `json:"account"`
 }
 
 // VanEntry is one van paired with this studio.

@@ -27,6 +27,8 @@ func waitFor(t *testing.T, what string, d time.Duration, ok func() bool) {
 // The whole journey an operator makes: studio adds a van, van pairs with the
 // code, studio pastes the reply, van goes live, studio receives the picture.
 func TestFullBroadcast(t *testing.T) {
+	LicenceRequired = false
+	defer func() { LicenceRequired = true }()
 	if _, err := exec.LookPath("ffmpeg"); err != nil {
 		t.Skip("ffmpeg not installed")
 	}
