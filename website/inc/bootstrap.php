@@ -222,7 +222,7 @@ function send_code_email(array $u, string $code, string $plan): void {
         . "Your registration code is:\r\n\r\n    $code\r\n\r\n"
         . "To activate it, open Van Link, sign in with this email address and enter the code under \"Registration code\".\r\n"
         . "You can also activate it on your account page: " . site_url('account.php') . "\r\n\r\n"
-        . "Keep this code safe.\r\n\r\n" . $CFG['company'];
+        . "Keep this code safe.\r\n\r\nVan Link";
     @mail($u['email'], 'Your Van Link registration code', $msg,
         "From: Van Link <noreply@$host>\r\nReply-To: {$CFG['support_email']}\r\nContent-Type: text/plain; charset=UTF-8");
 }

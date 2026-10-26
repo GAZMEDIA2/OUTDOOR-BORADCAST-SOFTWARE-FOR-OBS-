@@ -9,12 +9,11 @@ function page_head(string $title, ?array $user = null): void {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?> – Van Link</title>
 <meta name="description" content="Van Link sends live video from your outside broadcast van straight to your studio over the internet, with OBS Studio. No satellite dish.">
-<link rel="icon" href="assets/icon.png">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="./"><img src="assets/icon.png" alt="" width="36" height="36"><span><b>Van Link</b></span></a>
+  <a class="brand" href="./"><span><b>Van Link</b></span></a>
   <nav>
     <a href="./#features">Features</a>
     <a href="./#pricing">Pricing</a>
@@ -36,7 +35,7 @@ function page_foot(): void {
     global $CFG;
     ?>
 <footer class="foot">
-  <p>Van Link · © <?= date('Y') ?> <?= e($CFG['company']) ?> · <a href="mailto:<?= e($CFG['support_email']) ?>"><?= e($CFG['support_email']) ?></a></p>
+  <p>Van Link · © <?= date('Y') ?> · <a href="mailto:<?= e($CFG['support_email']) ?>"><?= e($CFG['support_email']) ?></a></p>
 </footer>
 </body>
 </html>

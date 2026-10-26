@@ -3,7 +3,7 @@
 // Keep config.php private: it holds your database password and licence key.
 return [
     'site_url' => 'https://vanlink.gazgoc.com.ng',
-    'company'  => 'Gaz Media Productions',
+    'company'  => 'Van Link',
     'support_email' => 'support@gazgoc.com.ng',
     'support_whatsapp' => '',            // e.g. +2376xxxxxxxx (shown on the payment page)
     'timezone' => 'Africa/Lagos',
