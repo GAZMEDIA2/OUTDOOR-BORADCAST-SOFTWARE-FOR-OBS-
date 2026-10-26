@@ -27,19 +27,20 @@ $start = $user ? 'account.php' : 'signup.php';
     <figure class="art" aria-label="Illustration: a van sends live video over the internet to a studio, which confirms it is live">
       <svg viewBox="0 0 560 400" role="img" aria-label="Van sends video through the internet to the studio">
         <defs>
-          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8F5E9"/><stop offset="1" stop-color="#F6F8F5"/></linearGradient>
-          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2E7D32"/></marker>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E1B4B"/><stop offset="1" stop-color="#0F172A"/></linearGradient>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22C55E"/></marker>
         </defs>
         <rect x="0" y="0" width="560" height="400" rx="24" fill="url(#sky)"/>
+        <g fill="#E0E7FF" opacity=".7"><circle cx="40" cy="40" r="1.6"/><circle cx="120" cy="80" r="1.2"/><circle cx="470" cy="50" r="1.8"/><circle cx="520" cy="110" r="1.2"/><circle cx="410" cy="30" r="1.2"/><circle cx="180" cy="30" r="1.4"/></g>
         <!-- road -->
-        <rect x="0" y="318" width="560" height="82" rx="0" fill="#DDE5DA"/>
-        <rect x="0" y="318" width="560" height="4" fill="#C8D3C4"/>
+        <rect x="0" y="318" width="560" height="82" rx="0" fill="#1E293B"/>
+        <rect x="0" y="318" width="560" height="4" fill="#F59E0B"/>
         <!-- van -->
         <g transform="translate(28 210)">
-          <rect x="0" y="20" width="150" height="86" rx="10" fill="#1F2937"/>
-          <path d="M150 44h38l26 30v32h-64z" fill="#374151"/>
+          <rect x="0" y="20" width="150" height="86" rx="10" fill="#2563EB"/>
+          <path d="M150 44h38l26 30v32h-64z" fill="#1D4ED8"/>
           <rect x="160" y="50" width="30" height="22" rx="3" fill="#9CC5E8"/>
-          <rect x="14" y="36" width="56" height="30" rx="4" fill="#2E7D32"/>
+          <rect x="14" y="36" width="56" height="30" rx="4" fill="#22C55E"/>
           <text x="42" y="56" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="system-ui">OB</text>
           <circle cx="40" cy="108" r="16" fill="#111827"/><circle cx="40" cy="108" r="6" fill="#9CA3AF"/>
           <circle cx="172" cy="108" r="16" fill="#111827"/><circle cx="172" cy="108" r="6" fill="#9CA3AF"/>
@@ -50,28 +51,28 @@ $start = $user ? 'account.php' : 'signup.php';
           <circle cx="-2" cy="44" r="0" fill="none"/>
         </g>
         <!-- signal waves from van -->
-        <g fill="none" stroke="#2E7D32" stroke-width="3" stroke-linecap="round" opacity=".8">
+        <g fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round" opacity=".8">
           <path d="M150 196a20 20 0 0 1 22-14"/><path d="M146 186a34 34 0 0 1 36-22"/>
         </g>
         <!-- cloud internet -->
         <g transform="translate(200 54)">
-          <path d="M40 70a34 34 0 0 1 8-66 44 44 0 0 1 82 6 30 30 0 0 1 30 54z" fill="#fff" stroke="#C8D3C4" stroke-width="2"/>
-          <text x="86" y="54" text-anchor="middle" font-size="15" font-weight="700" fill="#14181F" font-family="system-ui">Internet</text>
-          <text x="86" y="72" text-anchor="middle" font-size="11" fill="#55606E" font-family="system-ui">Starlink · 4G · 5G · fibre</text>
+          <path d="M40 70a34 34 0 0 1 8-66 44 44 0 0 1 82 6 30 30 0 0 1 30 54z" fill="#1E293B" stroke="#38BDF8" stroke-width="2"/>
+          <text x="86" y="54" text-anchor="middle" font-size="15" font-weight="700" fill="#F8FAFC" font-family="system-ui">Internet</text>
+          <text x="86" y="72" text-anchor="middle" font-size="11" fill="#94A3B8" font-family="system-ui">Starlink · 4G · 5G · fibre</text>
         </g>
         <!-- arrows -->
-        <path d="M170 170 C 190 120, 200 110, 222 104" fill="none" stroke="#2E7D32" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah)"/>
-        <path d="M362 104 C 392 110, 404 128, 412 160" fill="none" stroke="#2E7D32" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah)"/>
+        <path d="M170 170 C 190 120, 200 110, 222 104" fill="none" stroke="#22C55E" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah)"/>
+        <path d="M362 104 C 392 110, 404 128, 412 160" fill="none" stroke="#22C55E" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah)"/>
         <!-- lock -->
         <g transform="translate(276 152)">
-          <rect x="0" y="12" width="28" height="22" rx="4" fill="#2E7D32"/>
-          <path d="M6 12v-5a8 8 0 0 1 16 0v5" fill="none" stroke="#2E7D32" stroke-width="3"/>
-          <text x="14" y="58" text-anchor="middle" font-size="11" fill="#1B5E20" font-family="system-ui">encrypted</text>
+          <rect x="0" y="12" width="28" height="22" rx="4" fill="#22C55E"/>
+          <path d="M6 12v-5a8 8 0 0 1 16 0v5" fill="none" stroke="#22C55E" stroke-width="3"/>
+          <text x="14" y="58" text-anchor="middle" font-size="11" fill="#86EFAC" font-family="system-ui">encrypted</text>
         </g>
         <!-- studio building -->
         <g transform="translate(372 168)">
-          <rect x="0" y="22" width="160" height="128" rx="8" fill="#fff" stroke="#C8D3C4" stroke-width="2"/>
-          <path d="M-8 26 L80 -6 L168 26z" fill="#2E7D32"/>
+          <rect x="0" y="22" width="160" height="128" rx="8" fill="#1E293B" stroke="#475569" stroke-width="2"/>
+          <path d="M-8 26 L80 -6 L168 26z" fill="#F97316"/>
           <text x="80" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="system-ui">STUDIO</text>
           <!-- monitor -->
           <rect x="18" y="40" width="124" height="74" rx="6" fill="#1F2937"/>
@@ -85,12 +86,12 @@ $start = $user ? 'account.php' : 'signup.php';
         </g>
         <!-- confirmation bubble -->
         <g transform="translate(26 112)">
-          <rect x="0" y="0" width="146" height="46" rx="12" fill="#fff" stroke="#C8D3C4" stroke-width="2"/>
-          <path d="M70 46 l10 12 l6-12z" fill="#fff" stroke="#C8D3C4" stroke-width="2"/>
-          <rect x="72" y="44" width="16" height="4" fill="#fff"/>
+          <rect x="0" y="0" width="146" height="46" rx="12" fill="#1E293B" stroke="#F472B6" stroke-width="2"/>
+          <path d="M70 46 l10 12 l6-12z" fill="#1E293B" stroke="#F472B6" stroke-width="2"/>
+          <rect x="72" y="44" width="16" height="4" fill="#1E293B"/>
           <circle cx="20" cy="23" r="7" fill="#DC2626"/>
-          <text x="34" y="20" font-size="11" font-weight="700" fill="#14181F" font-family="system-ui">LIVE AT STUDIO</text>
-          <text x="34" y="35" font-size="10" fill="#55606E" font-family="system-ui">confirmed by the studio</text>
+          <text x="34" y="20" font-size="11" font-weight="700" fill="#F8FAFC" font-family="system-ui">LIVE AT STUDIO</text>
+          <text x="34" y="35" font-size="10" fill="#94A3B8" font-family="system-ui">confirmed by the studio</text>
         </g>
       </svg>
     </figure>
@@ -120,8 +121,8 @@ $start = $user ? 'account.php' : 'signup.php';
     <div class="versus">
       <div class="card old">
         <svg viewBox="0 0 300 150" aria-hidden="true">
-          <rect width="300" height="150" rx="12" fill="#F3F4F6"/>
-          <rect x="40" y="70" width="150" height="50" rx="6" fill="#6B7280"/><path d="M190 82h34l22 22v16h-56z" fill="#9CA3AF"/>
+          <rect width="300" height="150" rx="12" fill="#1F2937"/>
+          <rect x="40" y="70" width="150" height="50" rx="6" fill="#4B5563"/><path d="M190 82h34l22 22v16h-56z" fill="#9CA3AF"/>
           <circle cx="70" cy="122" r="12" fill="#374151"/><circle cx="210" cy="122" r="12" fill="#374151"/>
           <ellipse cx="110" cy="40" rx="42" ry="22" fill="#D1D5DB" stroke="#9CA3AF" stroke-width="3" transform="rotate(-25 110 40)"/>
           <rect x="106" y="50" width="8" height="22" fill="#9CA3AF"/>
@@ -139,15 +140,15 @@ $start = $user ? 'account.php' : 'signup.php';
       </div>
       <div class="card new">
         <svg viewBox="0 0 300 150" aria-hidden="true">
-          <rect width="300" height="150" rx="12" fill="#E8F5E9"/>
-          <rect x="40" y="70" width="150" height="50" rx="6" fill="#1F2937"/><path d="M190 82h34l22 22v16h-56z" fill="#374151"/>
+          <rect width="300" height="150" rx="12" fill="#0B2E1A"/>
+          <rect x="40" y="70" width="150" height="50" rx="6" fill="#2563EB"/><path d="M190 82h34l22 22v16h-56z" fill="#1D4ED8"/>
           <circle cx="70" cy="122" r="12" fill="#111827"/><circle cx="210" cy="122" r="12" fill="#111827"/>
           <rect x="110" y="58" width="44" height="8" rx="2" fill="#E5E7EB" transform="rotate(-10 132 62)"/>
           <rect x="54" y="80" width="46" height="26" rx="3" fill="#2E7D32"/>
           <text x="77" y="98" font-size="11" text-anchor="middle" fill="#fff" font-weight="700" font-family="system-ui">LAPTOP</text>
           <g fill="none" stroke="#2E7D32" stroke-width="3" stroke-linecap="round"><path d="M150 46a16 16 0 0 1 18-10"/><path d="M146 36a30 30 0 0 1 32-18"/></g>
-          <text x="248" y="40" font-size="12" text-anchor="middle" fill="#1B5E20" font-weight="700" font-family="system-ui">internet</text>
-          <text x="248" y="56" font-size="11" text-anchor="middle" fill="#1B5E20" font-family="system-ui">you already have</text>
+          <text x="248" y="40" font-size="12" text-anchor="middle" fill="#86EFAC" font-weight="700" font-family="system-ui">internet</text>
+          <text x="248" y="56" font-size="11" text-anchor="middle" fill="#86EFAC" font-family="system-ui">you already have</text>
         </svg>
         <h3>Van Link</h3>
         <ul class="check">
@@ -205,7 +206,7 @@ $start = $user ? 'account.php' : 'signup.php';
     <div class="glossary">
       <div class="g"><span class="chip red">LIVE AT STUDIO</span><p>Shown on the van screen <b>only</b> when the studio confirms it is receiving your picture. No more phoning the studio to ask "are you getting us?".</p></div>
       <div class="g"><span class="chip"><i class="bars"><i></i><i></i><i></i><i class="off"></i></i> Signal</span><p>Like the bars on a phone: how healthy the connection is right now, for the van and for the studio. Four green bars is excellent.</p></div>
-      <div class="g"><span class="chip">Delay</span><p>How long the picture takes to travel from the van to the studio. You choose a small safety buffer in Settings (from 0.3 to 4 seconds); a bigger buffer rides out weak mobile signal better.</p></div>
+      <div class="g"><span class="chip">Network delay</span><p>How long the picture takes to cross the internet from the van to the studio. On top of that, you choose a small safety buffer in Settings (from 0.3 to 4 seconds); a bigger buffer rides out weak mobile signal better.</p></div>
       <div class="g"><span class="chip">Missing data (repaired)</span><p>The internet sometimes loses small pieces of video. Van Link notices and resends them before they reach the screen, and shows you how much it had to repair.</p></div>
       <div class="g"><span class="chip">Route</span><p>How the two computers are connected, for example "Direct". <b>Encrypted</b> means only your paired studio can open the video.</p></div>
       <div class="g"><span class="chip">Jump to live</span><p>A button at the studio that drops any delay that has built up, so the picture is as fresh as possible.</p></div>
@@ -320,7 +321,7 @@ $start = $user ? 'account.php' : 'signup.php';
       <details open><summary>Do I need a network engineer to set it up?</summary><p>No. Van Link connects to OBS by itself, sets up the Windows firewall with one click, and finds the way between the van and the studio automatically. If something is wrong, it tells you in plain words what to do.</p></details>
       <details><summary>Does my video go through your servers?</summary><p>No. The video goes directly from your van computer to your studio computer, encrypted. Our website is only used for your account, licence and payments.</p></details>
       <details><summary>What happens if the internet drops during a broadcast?</summary><p>Van Link repairs small losses automatically, and if the connection drops completely it keeps trying and reconnects by itself when the signal comes back. Both screens show exactly what is happening.</p></details>
-      <details><summary>How much delay is there?</summary><p>It depends mostly on your internet. You choose a safety buffer in Settings (0.3 to 4 seconds), and both screens show the real delay live. If delay builds up, the studio can press <b>Jump to live</b>. We recommend testing on your own network during the free trial.</p></details>
+      <details><summary>How much delay is there?</summary><p>It depends mostly on your internet. You choose a safety buffer in Settings (0.3 to 4 seconds), and both screens show the real network delay live. If delay builds up, the studio can press <b>Jump to live</b>. We recommend testing on your own network during the free trial.</p></details>
       <details><summary>Can I send more than one camera?</summary><p>Van Link sends your OBS Program, the finished mix, which is what most stations put on air. Extra individual camera feeds are coming to the Pro plan, and the Program will always stay the main feed.</p></details>
       <details><summary>Can one studio receive several vans?</summary><p>Yes, with Pro: up to <?= (int)$P['pro']['max_vans'] ?> vans per studio, each arriving as its own OBS source. Standard covers one studio and one van.</p></details>
       <details><summary>How does the free trial work?</summary><p>Create an account, download Van Link, and sign in on both computers. For <?= (int)$CFG['trial_days'] ?> days you can broadcast up to <?= (int)$CFG['trial_minutes_per_day'] ?> minutes in every 24 hours, with all Standard features. No card is needed.</p></details>

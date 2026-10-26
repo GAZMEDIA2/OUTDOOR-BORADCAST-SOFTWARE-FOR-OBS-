@@ -1,4 +1,4 @@
-:root{--ink:#14181F;--muted:#55606E;--line:#E2E6EB;--bg:#F6F8F5;--card:#fff;--green:#2E7D32;--green2:#1B5E20;--greenbg:#E8F5E9;--dark:#1F2937;--red:#DC2626;--redbg:#FDECEC;--amberbg:#FFF6E0;--amber:#8A5A00}
+:root{color-scheme:dark;--ink:#EEF2F7;--muted:#A3AEC2;--line:#26304A;--bg:#0B1020;--card:#121A2E;--card2:#18223A;--green:#22C55E;--green2:#4ADE80;--greenbg:rgba(34,197,94,.14);--dark:#0B1020;--red:#F43F5E;--redbg:rgba(244,63,94,.15);--amberbg:rgba(245,158,11,.14);--amber:#FBBF24;--blue:#38BDF8;--violet:#A78BFA;--orange:#FB923C;--pink:#F472B6;--grad:linear-gradient(90deg,#22C55E,#38BDF8 45%,#A78BFA 75%,#F472B6)}
 *{box-sizing:border-box}
 body{margin:0;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg)}
 a{color:var(--green2)}
@@ -12,7 +12,7 @@ h2{font-size:clamp(22px,3vw,30px)}
 .brand small{color:var(--muted);font-size:12px}
 nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 nav a{text-decoration:none;color:var(--ink);font-size:15px}
-.btn{display:inline-block;background:var(--green);color:#fff!important;border:0;border-radius:10px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;text-align:center}
+.btn{display:inline-block;background:var(--green);color:#04130A!important;border:0;border-radius:10px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;text-align:center}
 .btn:hover{background:var(--green2)}
 .btn.small{padding:8px 14px;font-size:14px}
 .btn.ghost{background:#fff;color:var(--green2)!important;border:1px solid var(--green)}
@@ -139,3 +139,63 @@ figure.wide figcaption{margin-top:12px;color:var(--muted);font-size:15px;max-wid
 .obsrun{display:flex;flex-direction:column;gap:28px;margin-bottom:28px}
 .obsrun figure{position:relative}
 .obsrun .num{position:absolute;top:-12px;left:-12px;z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+
+/* ---------- dark, colourful theme ---------- */
+body{background:radial-gradient(1200px 600px at 10% -10%,rgba(56,189,248,.16),transparent 60%),radial-gradient(900px 500px at 100% 0%,rgba(167,139,250,.16),transparent 60%),var(--bg) no-repeat;background-color:var(--bg)}
+.top{background:rgba(11,16,32,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--grad);opacity:.8}
+.brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:20px}
+nav a{color:var(--ink)}nav a:hover{color:var(--blue)}
+a{color:var(--blue)}
+.btn{box-shadow:0 6px 20px rgba(34,197,94,.25)}
+.btn:hover{background:var(--green2)}
+.btn.ghost{background:transparent;color:var(--ink)!important;border:1px solid var(--line);box-shadow:none}
+.btn.ghost:hover{border-color:var(--blue);color:var(--blue)!important}
+.btn.dark{background:var(--card2);color:var(--ink)!important;box-shadow:none}
+.btn.danger{background:var(--red);color:#fff!important}
+.hl{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{background:rgba(56,189,248,.14);color:var(--blue)}
+.card,.g,.faq details,.who div,.nets div,.simple,table,pre.pay,.hero img.shot,figure.wide img{background:var(--card);border-color:var(--line)}
+.ex{background:var(--card2)}
+input,select,textarea{background:var(--card2);border-color:#33405E;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--blue);border-color:transparent}
+th{background:var(--card2)}
+.pill{background:var(--card2)}
+.flash.err,.err-box{color:#FDA4AF}
+.cross li::before{background:#1F2937;color:#9CA3AF}
+.versus .new{border-color:var(--green);box-shadow:0 0 0 4px rgba(34,197,94,.08)}
+.art svg{filter:drop-shadow(0 20px 50px rgba(56,189,248,.18))}
+.stepshot,.shots2 img,.obsrun img{border-color:var(--line);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.chip{background:var(--card2);color:var(--ink)}
+.chip.red{background:var(--red)}
+.bars i.off{background:#33405E}
+.nets div:last-child{border-color:rgba(245,158,11,.35)}
+.price .best{border-color:transparent;background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad) border-box;border:2px solid transparent;box-shadow:0 18px 50px rgba(167,139,250,.18)}
+.pop{background:var(--grad);color:#0B1020}
+.faq summary::after{color:var(--blue)}
+.final{background:linear-gradient(120deg,#0E7A3A,#0369A1 50%,#6D28D9)!important}
+.final h2{color:#fff}.final p{color:#E0E7FF}
+.final .btn{background:#fff;color:#0B1020!important}
+.foot{border-top:1px solid var(--line)}
+section{border-top-color:var(--line)}
+/* a different colour for each icon */
+.flow li:nth-child(1) .ico{background:rgba(56,189,248,.15);color:var(--blue)}
+.flow li:nth-child(2) .ico{background:rgba(34,197,94,.15);color:var(--green2)}
+.flow li:nth-child(3) .ico{background:rgba(167,139,250,.16);color:var(--violet)}
+.flow li:nth-child(4) .ico{background:rgba(244,63,94,.16);color:var(--red)}
+.flow li:nth-child(5) .ico{background:rgba(251,146,60,.16);color:var(--orange)}
+.flow h3::before{color:var(--blue)}
+.feat .card:nth-child(6n+1) .fi{background:rgba(56,189,248,.15);color:var(--blue)}
+.feat .card:nth-child(6n+2) .fi{background:rgba(167,139,250,.16);color:var(--violet)}
+.feat .card:nth-child(6n+3) .fi{background:rgba(34,197,94,.15);color:var(--green2)}
+.feat .card:nth-child(6n+4) .fi{background:rgba(251,146,60,.16);color:var(--orange)}
+.feat .card:nth-child(6n+5) .fi{background:rgba(244,114,182,.16);color:var(--pink)}
+.feat .card:nth-child(6n+6) .fi{background:rgba(250,204,21,.15);color:#FACC15}
+.feat .card,.who div,.g{transition:transform .15s,border-color .15s}
+.feat .card:hover,.who div:hover,.g:hover{transform:translateY(-2px);border-color:#3B4A6E}
+.who div{border-left:3px solid var(--blue)}
+.who div:nth-child(4n+2){border-left-color:var(--violet)}.who div:nth-child(4n+3){border-left-color:var(--orange)}.who div:nth-child(4n+4){border-left-color:var(--pink)}
+.glossary .g:nth-child(4n+1) .chip:not(.red){color:var(--blue)}.glossary .g:nth-child(4n+2) .chip:not(.red){color:var(--violet)}.glossary .g:nth-child(4n+3) .chip:not(.red){color:var(--orange)}.glossary .g:nth-child(4n+4) .chip:not(.red){color:var(--green2)}
+.num{color:#04130A}
+.steps .card::before{color:#04130A}
+img[src$="how-it-works.png"]{filter:invert(.9) hue-rotate(180deg) saturate(1.6);background:#fff!important;border-color:#fff!important}
