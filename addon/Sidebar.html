@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<style>
+  :root{--blue:#1a73e8;--blue2:#1765cc;--ink:#202124;--muted:#5f6368;--line:#dadce0;--bg:#f8f9fa;--ok:#188038;--err:#c5221f;--soft:#e8f0fe}
+  *{box-sizing:border-box}
+  body{margin:0;padding:12px 12px 24px;font:13px/1.45 Roboto,Arial,sans-serif;color:var(--ink);background:#fff}
+  h2{font-size:13px;font-weight:600;margin:16px 0 6px;display:flex;align-items:center;justify-content:space-between}
+  .info{background:var(--soft);color:#174ea6;border-radius:8px;padding:10px 12px;font-size:12px}
+  .muted{color:var(--muted)}.small{font-size:12px}
+  select,input[type=number],input[type=text]{width:100%;padding:6px 7px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff;color:var(--ink)}
+  select:focus,input:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:transparent}
+  .row{display:flex;gap:6px;align-items:center}
+  .row>*{min-width:0}
+  .x{flex:none;color:var(--muted)}
+  .unit{flex:none;width:68px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px}
+  .grid2 label{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+  .grid2 label span{flex:none;width:44px}
+  button{width:100%;margin-top:8px;padding:8px 10px;border:0;border-radius:6px;background:var(--blue);color:#fff;font:inherit;font-weight:500;cursor:pointer}
+  button:hover{background:var(--blue2)}
+  button.ghost{background:#fff;color:var(--blue);border:1px solid var(--line)}
+  button.ghost:hover{background:var(--bg)}
+  button:disabled{background:#e8eaed;color:#9aa0a6;border-color:#e8eaed;cursor:default}
+  .two{display:flex;gap:6px}.two button{flex:1}
+  .preview{display:flex;justify-content:center;align-items:center;height:150px;background:var(--bg);border-radius:8px;margin-top:8px}
+  .preview svg{max-height:136px;max-width:100%}
+  .dims{text-align:center;margin-top:4px}
+  .check{display:flex;gap:6px;align-items:flex-start;margin-top:8px;font-size:12px}
+  .check input{margin-top:2px}
+  #msg{margin-top:10px;font-size:12px;min-height:18px}
+  #msg.ok{color:var(--ok)}#msg.err{color:var(--err)}
+  .hide{display:none}
+  hr{border:0;border-top:1px solid var(--line);margin:16px 0 4px}
+  .note{font-size:11.5px;color:var(--muted);margin-top:10px}
+  .busy{opacity:.6;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="info">Changes the page size and margins, and can fix broken drop caps. Nothing is sent anywhere, and every change can be undone.</div>
+
+<h2>Change</h2>
+<div class="small" id="tabLine">Loading…</div>
+<label class="check" id="allTabsRow"><input type="checkbox" id="allTabs"> <span>Apply to every tab (<b id="tabCount">0</b>)</span></label>
+
+<h2>Page size</h2>
+<select id="preset" aria-label="Page size preset"></select>
+<div class="row" style="margin-top:6px">
+  <input type="number" id="w" step="any" min="0" aria-label="Width">
+  <span class="x">×</span>
+  <input type="number" id="h" step="any" min="0" aria-label="Height">
+  <select id="unit" class="unit" aria-label="Unit">
+    <option value="in">inch</option><option value="mm">mm</option><option value="cm">cm</option><option value="pt">pt</option>
+  </select>
+</div>
+<div class="row" style="margin-top:6px">
+  <select id="orient" aria-label="Orientation">
+    <option value="typed">Orientation: as typed</option>
+    <option value="portrait">Portrait (tall)</option>
+    <option value="landscape">Landscape (wide)</option>
+  </select>
+</div>
+<button class="ghost" id="swap" type="button">Swap width and height</button>
+
+<h2>Margins <span class="muted small" id="unitLbl">inch</span></h2>
+<div class="grid2">
+  <label><span>Top</span><input type="number" id="top" step="any" min="0"></label>
+  <label><span>Bottom</span><input type="number" id="bottom" step="any" min="0"></label>
+  <label><span>Left</span><input type="number" id="left" step="any" min="0"></label>
+  <label><span>Right</span><input type="number" id="right" step="any" min="0"></label>
+  <label><span>Gutter</span><input type="number" id="gutter" step="any" min="0"></label>
+  <span class="muted small" style="align-self:center">added to the left</span>
+</div>
+<select id="mpreset" style="margin-top:8px" aria-label="Margin preset">
+  <option value="">Margin preset…</option>
+  <option value="normal">Normal (1 inch all round)</option>
+  <option value="moderate">Moderate (1" top/bottom, 0.75" sides)</option>
+  <option value="narrow">Narrow (0.5 inch all round)</option>
+  <option value="wide">Wide (1" top/bottom, 2" sides)</option>
+  <option value="book">Book for print (gutter by page count)</option>
+</select>
+<div id="bookRow" class="row hide" style="margin-top:6px">
+  <input type="number" id="pages" min="24" max="828" step="1" placeholder="Number of pages, e.g. 200">
+</div>
+<button class="ghost" id="fit" type="button">Fit margins to this page size</button>
+
+<div class="preview" aria-hidden="true"><svg id="pv" viewBox="0 0 100 100"></svg></div>
+<div class="dims small muted" id="dims"></div>
+
+<div class="two">
+  <button id="apply" type="button">Change page</button>
+  <button id="undo" class="ghost" type="button" disabled>Undo</button>
+</div>
+<div id="msg" role="status"></div>
+
+<hr>
+<h2>Drop caps (big first letter)</h2>
+<p class="small muted" style="margin:0">Fixes chapters where the big first letter stands on its own line after uploading a book from Word or another program. Each letter becomes a picture in the same font, with the text wrapping around it.</p>
+<div class="row" style="margin-top:8px">
+  <select id="dcLines" aria-label="Drop cap height">
+    <option value="2">2 lines tall</option><option value="3" selected>3 lines tall</option><option value="4">4 lines tall</option><option value="5">5 lines tall</option>
+  </select>
+</div>
+<button class="ghost" id="dcFind" type="button">Find broken drop caps</button>
+<div id="dcList" class="small" style="margin-top:6px"></div>
+<button id="dcFix" type="button" class="hide">Fix all</button>
+<button class="ghost" id="dcHere" type="button">Make a drop cap in this paragraph</button>
+<button class="ghost" id="dcUndo" type="button" disabled>Undo drop caps</button>
+<div id="dcMsg" class="small" style="margin-top:8px;min-height:16px"></div>
+
+<hr>
+<h2>My sizes</h2>
+<div class="row">
+  <input type="text" id="sname" placeholder="Name, e.g. My novel 6×9" maxlength="40">
+</div>
+<button class="ghost" id="save" type="button">Save current settings</button>
+<div class="row" style="margin-top:8px">
+  <select id="saved" aria-label="Saved sizes"><option value="">(no saved sizes)</option></select>
+</div>
+<div class="two"><button class="ghost" id="load" type="button" disabled>Use</button><button class="ghost" id="del" type="button" disabled>Delete</button></div>
+
+<p class="note">Current page: <span id="current">…</span></p>
+<p class="note">In a <b>Pageless</b> document nothing looks different. Choose File → Page setup → Pages to see pages. Pressing OK in Docs' own Page setup can reset a custom size, so change it here instead.</p>
+<p class="note">Book margins: Google Docs cannot mirror margins on left and right pages, so the gutter is always on the left.</p>
+
+<script>
+var PT = { in: 72, mm: 72 / 25.4, cm: 720 / 25.4, pt: 1 };
+var IN = 72, MM = 72 / 25.4;
+var PRESETS = [
+  ['Paper', [
+    ['Letter', 8.5 * IN, 11 * IN], ['Legal', 8.5 * IN, 14 * IN], ['Tabloid', 11 * IN, 17 * IN],
+    ['Statement', 5.5 * IN, 8.5 * IN], ['Executive', 7.25 * IN, 10.5 * IN], ['Folio', 8.5 * IN, 13 * IN],
+    ['A3', 297 * MM, 420 * MM], ['A4', 210 * MM, 297 * MM], ['A5', 148 * MM, 210 * MM], ['A6', 105 * MM, 148 * MM],
+    ['B4', 250 * MM, 353 * MM], ['B5', 176 * MM, 250 * MM], ['B5 (JIS)', 182 * MM, 257 * MM]]],
+  ['Book trim sizes', [
+    ['5 × 8 in', 5 * IN, 8 * IN], ['5.25 × 8 in', 5.25 * IN, 8 * IN], ['5.5 × 8.5 in', 5.5 * IN, 8.5 * IN],
+    ['6 × 9 in', 6 * IN, 9 * IN], ['6.14 × 9.21 in (Royal)', 6.14 * IN, 9.21 * IN], ['6.69 × 9.61 in', 6.69 * IN, 9.61 * IN],
+    ['7 × 10 in', 7 * IN, 10 * IN], ['7.5 × 9.25 in', 7.5 * IN, 9.25 * IN], ['8 × 10 in', 8 * IN, 10 * IN],
+    ['8.25 × 11 in', 8.25 * IN, 11 * IN], ['8.5 × 8.5 in (square)', 8.5 * IN, 8.5 * IN]]],
+  ['Cards, photos and envelopes', [
+    ['Index card 3 × 5 in', 3 * IN, 5 * IN], ['Postcard 4 × 6 in', 4 * IN, 6 * IN], ['Card 5 × 7 in', 5 * IN, 7 * IN],
+    ['Business card 3.5 × 2 in', 3.5 * IN, 2 * IN], ['Square 8 × 8 in', 8 * IN, 8 * IN],
+    ['Envelope #10', 9.5 * IN, 4.125 * IN], ['Envelope DL', 220 * MM, 110 * MM], ['Envelope C5', 229 * MM, 162 * MM]]],
+  ['Screens and slides', [
+    ['Slide 16:9 (13.33 × 7.5 in)', 13.333 * IN, 7.5 * IN], ['Slide 4:3 (10 × 7.5 in)', 10 * IN, 7.5 * IN]]]
+];
+var state = null, unit = 'in';
+var $ = function (id) { return document.getElementById(id); };
+
+/* ---------- presets ---------- */
+(function fillPresets() {
+  var s = $('preset'), o = document.createElement('option');
+  o.value = ''; o.textContent = 'Custom size'; s.appendChild(o);
+  PRESETS.forEach(function (g, gi) {
+    var og = document.createElement('optgroup'); og.label = g[0];
+    g[1].forEach(function (p, pi) {
+      var op = document.createElement('option'); op.value = gi + ':' + pi; op.textContent = p[0]; og.appendChild(op);
+    });
+    s.appendChild(og);
+  });
+})();
+
+/* ---------- units ---------- */
+function round(v) { var d = unit === 'mm' ? 1 : unit === 'pt' ? 1 : unit === 'cm' ? 2 : 3; var f = Math.pow(10, d); return Math.round(v * f) / f; }
+function toPt(v) { return Number(v) * PT[unit]; }
+function show(id, pt) { $(id).value = round(pt / PT[unit]); }
+function val(id) { var v = $(id).value; return v === '' ? NaN : toPt(v); }
+function fmt(pt) {
+  return round(pt / PT[unit]) + ' ' + ({ in: 'in', mm: 'mm', cm: 'cm', pt: 'pt' })[unit];
+}
+
+function setFields(p) {
+  ['w', 'h', 'top', 'bottom', 'left', 'right'].forEach(function (k) { show(k, p[k]); });
+  show('gutter', p.gutter || 0);
+  matchPreset(); draw();
+}
+function readFields() {
+  var p = { w: val('w'), h: val('h'), top: val('top'), bottom: val('bottom'), left: val('left'), right: val('right'), gutter: val('gutter') || 0 };
+  var o = $('orient').value;
+  if ((o === 'portrait' && p.w > p.h) || (o === 'landscape' && p.h > p.w)) { var t = p.w; p.w = p.h; p.h = t; }
+  return p;
+}
+function matchPreset() {
+  var w = val('w'), h = val('h'), found = '';
+  PRESETS.forEach(function (g, gi) { g[1].forEach(function (p, pi) {
+    if ((Math.abs(p[1] - w) < 0.6 && Math.abs(p[2] - h) < 0.6) || (Math.abs(p[1] - h) < 0.6 && Math.abs(p[2] - w) < 0.6)) found = found || gi + ':' + pi;
+  }); });
+  $('preset').value = found;
+}
+
+$('unit').onchange = function () {
+  var before = readRaw(); unit = $('unit').value; $('unitLbl').textContent = $('unit').selectedOptions[0].textContent;
+  setFields(before); renderCurrent();
+};
+function readRaw() { // the fields exactly as typed, in points, before a unit change
+  return { w: val('w'), h: val('h'), top: val('top'), bottom: val('bottom'), left: val('left'), right: val('right'), gutter: val('gutter') || 0 };
+}
+
+$('preset').onchange = function () {
+  if (!this.value) return;
+  var a = this.value.split(':'), p = PRESETS[+a[0]][1][+a[1]];
+  var w = p[1], h = p[2], o = $('orient').value;
+  if ((o === 'landscape' && h > w) || (o === 'portrait' && w > h)) { var t = w; w = h; h = t; }
+  show('w', w); show('h', h); clampMargins(); draw();
+};
+$('orient').onchange = draw;
+$('swap').onclick = function () { var w = $('w').value; $('w').value = $('h').value; $('h').value = w; $('orient').value = 'typed'; matchPreset(); draw(); };
+['w', 'h'].forEach(function (id) { $(id).oninput = function () { matchPreset(); draw(); }; });
+['top', 'bottom', 'left', 'right', 'gutter'].forEach(function (id) { $(id).oninput = function () { $('mpreset').value = ''; draw(); }; });
+
+/* ---------- margins ---------- */
+function setMargins(t, b, l, r, g) { show('top', t); show('bottom', b); show('left', l); show('right', r); show('gutter', g || 0); draw(); }
+function fitMargins() {
+  var p = readFields(), m = Math.max(18, Math.min(72, Math.min(p.w, p.h) * 0.12));
+  m = Math.round(m / 9) * 9; // whole eighths of an inch
+  setMargins(m, m, m, m, 0); $('mpreset').value = '';
+}
+function clampMargins() { // keep old margins unless they no longer fit the new page
+  var p = readFields();
+  if (p.w - p.left - p.right - p.gutter < 36 || p.h - p.top - p.bottom < 36) fitMargins();
+}
+$('fit').onclick = fitMargins;
+function bookGutter(n) { return n <= 150 ? 0.375 : n <= 300 ? 0.5 : n <= 500 ? 0.625 : n <= 700 ? 0.75 : 0.875; }
+function applyMarginPreset() {
+  var v = $('mpreset').value;
+  $('bookRow').classList.toggle('hide', v !== 'book');
+  if (v === 'normal') setMargins(72, 72, 72, 72, 0);
+  if (v === 'moderate') setMargins(72, 72, 54, 54, 0);
+  if (v === 'narrow') setMargins(36, 36, 36, 36, 0);
+  if (v === 'wide') setMargins(72, 72, 144, 144, 0);
+  if (v === 'book') {
+    var n = parseInt($('pages').value, 10) || 200;
+    setMargins(54, 54, 36, 36, bookGutter(n) * 72);
+  }
+}
+$('mpreset').onchange = applyMarginPreset;
+$('pages').oninput = function () { if ($('mpreset').value === 'book') applyMarginPreset(); };
+
+/* ---------- preview ---------- */
+function draw() {
+  var p = readFields(), svg = $('pv');
+  if (!(p.w > 0 && p.h > 0)) { svg.innerHTML = ''; $('dims').textContent = ''; return; }
+  var s = 100 / Math.max(p.w, p.h), W = p.w * s, H = p.h * s;
+  var L = (p.left + p.gutter) * s, R = p.right * s, T = p.top * s, B = p.bottom * s;
+  var cw = Math.max(0, W - L - R), ch = Math.max(0, H - T - B), lines = '';
+  for (var y = T + 4; y < T + ch - 1; y += 5) lines += '<rect x="' + (L + 2) + '" y="' + y + '" width="' + Math.max(0, cw - 4) + '" height="1.6" rx=".8" fill="#c6dafc"/>';
+  var gutter = p.gutter > 0 ? '<rect x="' + (p.left * s) + '" y="0" width="' + (p.gutter * s) + '" height="' + H + '" fill="#fde7c4"/>' : '';
+  svg.setAttribute('viewBox', (-2) + ' ' + (-2) + ' ' + (W + 4) + ' ' + (H + 4));
+  svg.innerHTML = '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#fff" stroke="#9aa0a6" stroke-width=".6"/>' + gutter +
+    '<rect x="' + L + '" y="' + T + '" width="' + cw + '" height="' + ch + '" fill="none" stroke="#1a73e8" stroke-width=".5" stroke-dasharray="1.5 1.2"/>' + lines;
+  var bad = cw * (1 / s) < 36 || ch * (1 / s) < 36;
+  $('dims').innerHTML = fmt(p.w) + ' × ' + fmt(p.h) + (bad ? ' · <span style="color:#c5221f">margins too big</span>' : ' · writing area ' + fmt(cw / s) + ' × ' + fmt(ch / s));
+}
+
+/* ---------- talking to Google Docs ---------- */
+function msg(text, kind) { var m = $('msg'); m.textContent = text || ''; m.className = kind || ''; }
+function busy(on) { document.body.classList.toggle('busy', on); }
+function call(fn, arg, done) {
+  busy(true);
+  google.script.run
+    .withSuccessHandler(function (r) { busy(false); done(r); })
+    .withFailureHandler(function (e) { busy(false); msg(e && e.message ? e.message : String(e), 'err'); })[fn](arg);
+}
+function renderCurrent() {
+  if (!state) return;
+  var p = state.page;
+  $('current').textContent = fmt(p.w) + ' × ' + fmt(p.h) + ', margins ' + [p.top, p.bottom, p.left, p.right].map(function (v) { return round(v / PT[unit]); }).join(' / ') + ' ' + unit + ' (top / bottom / left / right)';
+}
+function render(st, fill) {
+  state = st;
+  var n = st.tabs.length;
+  $('tabLine').innerHTML = n > 1 ? 'Current tab: <b></b>' : 'This document';
+  if (n > 1) $('tabLine').querySelector('b').textContent = st.activeTitle || 'Tab';
+  $('allTabsRow').classList.toggle('hide', n < 2);
+  $('tabCount').textContent = n;
+  $('undo').disabled = !st.canUndo;
+  $('dcUndo').disabled = !st.canUndoDc;
+  renderSaved(st.saved);
+  renderCurrent();
+  if (fill) setFields(st.page);
+  if (st.message) msg(st.message, 'ok');
+}
+function renderSaved(list) {
+  var s = $('saved'); s.innerHTML = '';
+  if (!list || !list.length) { s.innerHTML = '<option value="">(no saved sizes)</option>'; }
+  (list || []).forEach(function (x, i) { var o = document.createElement('option'); o.value = i; o.textContent = x.name; s.appendChild(o); });
+  state && (state.saved = list || []);
+  $('load').disabled = $('del').disabled = !(list && list.length);
+}
+
+$('apply').onclick = function () {
+  var p = readFields();
+  if ([p.w, p.h, p.top, p.bottom, p.left, p.right].some(isNaN)) return msg('Please fill in every size and margin.', 'err');
+  p.allTabs = $('allTabs').checked;
+  msg('Changing…');
+  call('applyPage', p, function (st) { render(st, false); });
+};
+$('undo').onclick = function () { msg('Undoing…'); call('undoLast', null, function (st) { render(st, true); }); };
+$('save').onclick = function () {
+  var p = readFields(); p.name = $('sname').value.trim(); p.unit = unit;
+  if (!p.name) return msg('Type a name for this size first.', 'err');
+  call('saveSize', p, function (list) { renderSaved(list); $('sname').value = ''; msg('Saved "' + p.name + '".', 'ok'); });
+};
+$('load').onclick = function () {
+  var x = state.saved[+$('saved').value]; if (!x) return;
+  unit = x.unit || unit; $('unit').value = unit; $('unitLbl').textContent = $('unit').selectedOptions[0].textContent;
+  $('orient').value = 'typed'; $('mpreset').value = ''; $('bookRow').classList.add('hide');
+  setFields(x); renderCurrent(); msg('Loaded "' + x.name + '". Press Change page to use it.', 'ok');
+};
+$('del').onclick = function () {
+  var x = state.saved[+$('saved').value]; if (!x) return;
+  call('deleteSize', x.name, function (list) { renderSaved(list); msg('Deleted "' + x.name + '".', 'ok'); });
+};
+
+/* ---------- drop caps ---------- */
+var dcItems = [];
+function dcMsg(t, kind) { var m = $('dcMsg'); m.textContent = t || ''; m.style.color = kind === 'err' ? '#c5221f' : kind === 'ok' ? '#188038' : '#5f6368'; }
+function gcall(fn, arg, done) {
+  busy(true);
+  google.script.run.withSuccessHandler(function (r) { busy(false); done(r); })
+    .withFailureHandler(function (e) { busy(false); dcMsg(e && e.message ? e.message : String(e), 'err'); })[fn](arg);
+}
+var loadedFonts = {};
+function loadFont(family, bold, italic) {
+  var key = family + (bold ? 'b' : '') + (italic ? 'i' : '');
+  if (loadedFonts[key]) return loadedFonts[key];
+  var w = bold ? 700 : 400;
+  var href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(family).replace(/%20/g, '+') + ':ital,wght@' + (italic ? 1 : 0) + ',' + w + '&display=block';
+  var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l);
+  loadedFonts[key] = new Promise(function (res) {
+    l.onload = function () { document.fonts.load((italic ? 'italic ' : '') + w + ' 100px "' + family + '"', 'A').then(function () { res(true); }, function () { res(false); }); };
+    l.onerror = function () { res(false); };
+    setTimeout(function () { res(false); }, 6000);
+  });
+  return loadedFonts[key];
+}
+function geometry(bodySize, bodyLine, lines) { // same rules as dropCapGeometry() on the server
+  var lh = bodySize * 1.25 * (bodyLine || 1.15), cap = bodySize * 0.72;
+  return { height: (lines - 1) * lh + cap, top: (lh - cap) * 0.62 };
+}
+/** Draws one letter so that its capital height = the wanted height. Returns {b64,w,h,top} in points. */
+function drawCap(it, lines) {
+  return loadFont(it.font, it.bold, it.italic).then(function () {
+    var g = geometry(it.bodySize, it.bodyLine, lines), SCALE = 4, PX = 96 / 72 * SCALE;
+    var c = document.createElement('canvas'), x = c.getContext('2d');
+    var style = (it.italic ? 'italic ' : '') + (it.bold ? '700 ' : '400 ');
+    x.font = style + '100px "' + it.font + '", Georgia, serif';
+    var m = x.measureText(it.letter);
+    var asc = m.actualBoundingBoxAscent / 100, desc = Math.max(0, m.actualBoundingBoxDescent) / 100;
+    var fs = g.height / asc;                         // font size (pt) whose letter height fills the lines
+    var padR = it.bodySize * 0.35;                   // small gap before the text
+    var left = Math.max(0, m.actualBoundingBoxLeft) / 100 * fs, right = m.actualBoundingBoxRight / 100 * fs;
+    var wPt = left + right + padR, hPt = g.height + desc * fs;
+    c.width = Math.ceil(wPt * PX); c.height = Math.ceil(hPt * PX);
+    x = c.getContext('2d'); x.font = style + (fs * PX) + 'px "' + it.font + '", Georgia, serif';
+    x.fillStyle = it.color || '#000'; x.textBaseline = 'alphabetic';
+    x.fillText(it.letter, left * PX, g.height * PX);
+    return { b64: c.toDataURL('image/png').split(',')[1], w: Math.round(wPt * 100) / 100, h: Math.round(hPt * 100) / 100, top: Math.round(g.top * 100) / 100 };
+  });
+}
+function capKey(it) { return [it.letter, it.font, it.bold, it.italic, it.color, it.bodySize, it.bodyLine].join('|'); }
+
+$('dcFind').onclick = function () {
+  dcMsg('Searching the document…'); $('dcFix').classList.add('hide'); $('dcList').textContent = '';
+  gcall('findDropCaps', $('allTabs').checked, function (r) {
+    dcItems = r.items;
+    if (!dcItems.length) { dcMsg('No broken drop caps found' + (r.tabs > 1 ? ' in any tab.' : ' in this tab.'), 'ok'); return; }
+    var letters = dcItems.slice(0, 12).map(function (i) { return '<b>' + i.letter.replace(/</g, '&lt;') + '</b>' + i.next.slice(0, 18).replace(/</g, '&lt;') + '…'; });
+    $('dcList').innerHTML = 'Found <b>' + dcItems.length + '</b>: ' + letters.join(', ') + (dcItems.length > 12 ? ' and more.' : '');
+    $('dcFix').textContent = 'Fix all ' + dcItems.length + ' drop caps'; $('dcFix').classList.remove('hide'); dcMsg('');
+  });
+};
+$('dcFix').onclick = function () {
+  if (!dcItems.length) return;
+  var lines = +$('dcLines').value, keys = {}, uniq = [];
+  dcItems.forEach(function (it) { var k = capKey(it); it.key = k; if (!keys[k]) { keys[k] = 1; uniq.push(it); } });
+  dcMsg('Drawing ' + uniq.length + ' letter' + (uniq.length > 1 ? 's' : '') + '…'); busy(true);
+  var images = {};
+  Promise.all(uniq.map(function (it) { return drawCap(it, lines).then(function (img) { images[it.key] = img; }); })).then(function () {
+    busy(false); dcMsg('Fixing ' + dcItems.length + ' chapters… this can take a minute for a long book.');
+    gcall('fixDropCaps', { items: dcItems.map(function (i) { return { tabId: i.tabId, index: i.index, letter: i.letter, key: i.key }; }), images: images }, function (r) {
+      dcMsg('Done: ' + r.fixed + ' drop cap' + (r.fixed === 1 ? '' : 's') + ' fixed' + (r.skipped ? ', ' + r.skipped + ' skipped because the text changed' : '') + '.', 'ok');
+      $('dcFix').classList.add('hide'); $('dcList').textContent = ''; dcItems = []; $('dcUndo').disabled = false;
+    });
+  });
+};
+$('dcHere').onclick = function () {
+  var lines = +$('dcLines').value; dcMsg('Reading the paragraph…');
+  gcall('cursorParagraph', null, function (it) {
+    drawCap(it, lines).then(function (img) {
+      gcall('makeDropCapHere', img, function () { dcMsg('Drop cap added. Use "Undo drop caps" to remove it.', 'ok'); $('dcUndo').disabled = false; });
+    });
+  });
+};
+$('dcUndo').onclick = function () {
+  dcMsg('Putting the original letters back…');
+  gcall('undoDropCaps', null, function (r) { dcMsg('Undone: ' + r.undone + ' letter' + (r.undone === 1 ? '' : 's') + ' put back.', 'ok'); $('dcUndo').disabled = true; });
+};
+
+call('getState', null, function (st) { render(st, true); });
+</script>
+</body>
+</html>
