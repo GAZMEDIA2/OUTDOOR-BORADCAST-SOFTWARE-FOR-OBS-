@@ -202,7 +202,7 @@ $start = $user ? 'account.php' : 'signup.php';
       <figure><img src="assets/screens/studio-live.jpg" alt="Van Link at the studio: Receiving van live, with signal, upload, delay, missing data and route for both ends" loading="lazy"><figcaption><b>Studio screen.</b> "Receiving van live", plus how the van and the studio are doing.</figcaption></figure>
       <figure><img src="assets/screens/van-live.jpg" alt="Van Link in the van: LIVE AT STUDIO, with signal, sending speed and studio reception" loading="lazy"><figcaption><b>Van screen.</b> Turns red, "LIVE AT STUDIO", only when the studio confirms it is receiving.</figcaption></figure>
     </div>
-    <p class="muted small">Real Van Link screens from our test. In that test both computers were side by side, so the delay shows almost zero; on your network the screens show your real figures.</p>
+    <p class="muted small">Real Van Link screens from our test. In that test both computers were side by side, so the network delay shows "under 0.01 s"; on your network the screens show your real figures.</p>
     <div class="glossary">
       <div class="g"><span class="chip red">LIVE AT STUDIO</span><p>Shown on the van screen <b>only</b> when the studio confirms it is receiving your picture. No more phoning the studio to ask "are you getting us?".</p></div>
       <div class="g"><span class="chip"><i class="bars"><i></i><i></i><i></i><i class="off"></i></i> Signal</span><p>Like the bars on a phone: how healthy the connection is right now, for the van and for the studio. Four green bars is excellent.</p></div>
