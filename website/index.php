@@ -8,7 +8,7 @@ $P = $CFG['plans'];
 <main>
   <div class="hero">
     <div>
-      <span class="tag">Early access · by <?= e($CFG['company']) ?></span>
+      <span class="tag">Early access</span>
       <h1>Live video from your OB van to your studio. No satellite dish.</h1>
       <p class="lead">Van Link sends your OBS programme straight from the van to the studio over Starlink, 4G or 5G, encrypted end to end, with live monitoring at both ends.</p>
       <div class="cta">

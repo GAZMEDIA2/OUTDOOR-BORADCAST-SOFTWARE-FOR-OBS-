@@ -14,7 +14,7 @@ function page_head(string $title, ?array $user = null): void {
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="./"><img src="assets/icon.png" alt="" width="36" height="36"><span><b>Van Link</b><small>by <?= e($CFG['company']) ?></small></span></a>
+  <a class="brand" href="./"><img src="assets/icon.png" alt="" width="36" height="36"><span><b>Van Link</b></span></a>
   <nav>
     <a href="./#features">Features</a>
     <a href="./#pricing">Pricing</a>
