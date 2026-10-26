@@ -156,7 +156,7 @@ function getState() {
     page: readPage_(active.body),
     saved: getSavedSizes_(),
     canUndo: getUndoStack_().length > 0,
-    canUndoDc: !!((loadDcUndo_() || { entries: [] }).entries.length)
+    canUndoDc: loadDcStack_().length > 0
   };
 }
 
@@ -415,7 +415,7 @@ function makeDropCapHere(img) {
 }
 
 function undoDropCaps() {
-  var undo = loadDcUndo_();
+  var stack = loadDcStack_(), undo = stack.pop();
   if (!undo || !undo.entries.length) throw new Error('There are no drop cap changes to undo.');
   var tabs = listTabs_(DocumentApp.getActiveDocument()), done = 0;
   // entries were made bottom-up, so put them back top-down
@@ -434,24 +434,35 @@ function undoDropCaps() {
     }
     done++;
   });
-  clearDcUndo_();
-  return { undone: done };
+  writeDcStack_(stack);
+  return { undone: done, more: stack.length > 0 };
 }
 
-/* undo history for drop caps, split over several properties when large */
-function saveDcUndo_(obj) {
-  var props = PropertiesService.getDocumentProperties(), json = JSON.stringify(obj), parts = [];
+/* undo history for drop caps: a stack of batches, split over several properties when large */
+var DC_UNDO_DEPTH = 10;
+function saveDcUndo_(batch) {
+  var stack = loadDcStack_();
+  stack.push(batch);
+  while (stack.length > DC_UNDO_DEPTH) stack.shift();
+  writeDcStack_(stack);
+}
+function writeDcStack_(stack) {
+  var props = PropertiesService.getDocumentProperties(), json = JSON.stringify(stack), parts = [];
   for (var i = 0; i < json.length; i += 8000) parts.push(json.slice(i, i + 8000));
   clearDcUndo_();
-  var map = { };
+  var map = {};
   map[DC_UNDO_KEY + '_n'] = String(parts.length);
   parts.forEach(function (p, i) { map[DC_UNDO_KEY + '_' + i] = p; });
   props.setProperties(map);
 }
-function loadDcUndo_() {
+function loadDcStack_() {
   var props = PropertiesService.getDocumentProperties(), n = +(props.getProperty(DC_UNDO_KEY + '_n') || 0), s = '';
   for (var i = 0; i < n; i++) s += props.getProperty(DC_UNDO_KEY + '_' + i) || '';
-  try { return s ? JSON.parse(s) : null; } catch (e) { return null; }
+  try { var v = s ? JSON.parse(s) : []; return Array.isArray(v) ? v : (v && v.entries ? [v] : []); } catch (e) { return []; }
+}
+function loadDcUndo_() { // the most recent batch, or null
+  var stack = loadDcStack_();
+  return stack.length ? stack[stack.length - 1] : null;
 }
 function clearDcUndo_() {
   var props = PropertiesService.getDocumentProperties(), n = +(props.getProperty(DC_UNDO_KEY + '_n') || 0);

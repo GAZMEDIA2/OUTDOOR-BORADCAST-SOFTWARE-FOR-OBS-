@@ -396,7 +396,7 @@ $('dcHere').onclick = function () {
 };
 $('dcUndo').onclick = function () {
   dcMsg('Putting the original letters back…');
-  gcall('undoDropCaps', null, function (r) { dcMsg('Undone: ' + r.undone + ' letter' + (r.undone === 1 ? '' : 's') + ' put back.', 'ok'); $('dcUndo').disabled = true; });
+  gcall('undoDropCaps', null, function (r) { dcMsg('Undone: ' + r.undone + ' letter' + (r.undone === 1 ? '' : 's') + ' put back.', 'ok'); $('dcUndo').disabled = !r.more; });
 };
 
 call('getState', null, function (st) { render(st, true); });
