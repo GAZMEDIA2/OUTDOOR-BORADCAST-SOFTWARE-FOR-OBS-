@@ -163,7 +163,7 @@ function bars(n) { let h=""; for (let i=0;i<4;i++) h += `<i class="${i<n?"on":""
 function clock(sec) { sec=Math.max(0,Math.floor(sec)); const h=Math.floor(sec/3600), m=Math.floor(sec%3600/60), s=sec%60; return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":"); }
 function since(key, on) { if (on) { liveSince[key] ??= Date.now(); return clock((Date.now()-liveSince[key])/1000); } delete liveSince[key]; return ""; }
 function mbps(k) { return k >= 1000 ? (k/1000).toFixed(1)+" Mbps" : Math.round(k)+" kbps"; }
-function delay(ms) { return ms ? (ms/1000).toFixed(ms<1000?2:1)+" s" : "measuring…"; }
+function delay(ms, s) { if (ms) return (ms/1000).toFixed(ms<1000?2:1)+" s"; return s && s.connected && s.linkSecs > 5 ? "under 0.01 s" : "measuring…"; }
 function note(key) { const n = notes[key]; return n ? `<div class="msg ${n.err?"err":"ok"}">${esc(n.text)}</div>` : ""; }
 function share(text, code) { return `https://wa.me/?text=${encodeURIComponent(text + "\n\n" + code)}`; }
 
@@ -315,7 +315,7 @@ function studioMon(v) {
    </div>
    <div class="side"><h3>Studio (receiving)</h3>
     <div class="kv"><span>Signal</span><span>${bars(s.signal)}${esc(s.signalWord)}</span></div>
-    <div class="kv"><span>Delay</span><span>${s.connected ? delay(s.delayMs) : "—"}</span></div>
+    <div class="kv"><span>Network delay</span><span>${s.connected ? delay(s.delayMs, s) : "—"}</span></div>
     <div class="kv"><span>Missing data</span><span>${s.liveHere ? s.repairPct.toFixed(1)+"% (repaired)" : "—"}</span></div>
     <div class="kv"><span>Route</span><span>${esc(s.route || "—")}${s.encrypted ? '<span class="tag">Encrypted</span>' : ""}</span></div>
    </div>
@@ -360,7 +360,7 @@ function vanMon() {
    </div>
    <div class="side"><h3>Studio reception</h3>
     <div class="kv"><span>Signal</span><span>${bars(s.connected ? p.sig : 0)}${esc(s.connected ? s.peerSignalWord : "—")}</span></div>
-    <div class="kv"><span>Delay to studio</span><span>${s.connected ? delay(s.delayMs) : "—"}</span></div>
+    <div class="kv"><span>Network delay</span><span>${s.connected ? delay(s.delayMs, s) : "—"}</span></div>
     <div class="kv"><span>Missing data</span><span>${s.connected && p.live ? p.rep.toFixed(1)+"% (repaired)" : "—"}</span></div>
     <div class="kv"><span>Route</span><span>${esc(s.route || "—")}${s.encrypted ? '<span class="tag">Encrypted</span>' : ""}</span></div>
    </div>
