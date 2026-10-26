@@ -98,3 +98,13 @@ To continue in a new Claude session, share this file and say: *"Continue the Van
 - Owner's Namecheap account: gazmediaproductions; hosting plan Stellar Plus; other sites on the same hosting: gazgoc.com.ng (WordPress, Gaz Presenter), overlays.gazgoc.com.ng, demideadeenterprise.com.ng, dijecare.org.ng. **Don't touch them.**
 - Local ports: Van Link screen `127.0.0.1:8765` (dock URL `/?dock=1`); van OBS → `127.0.0.1:9710`; studio OBS sources `127.0.0.1:9711+`; studio internet ports `47100+` (one per van).
 - Build needs: Go 1.22+ (deps vendored), NSIS, mingw binutils + gcc-mingw (for the icon). Tests need ffmpeg.
+
+## Update 26 Oct 2026 – version 0.2.1
+
+- **OBS 30+ fix:** OBS 30 keeps its remote-control settings in the `[OBSWebSocket]` section of `global.ini`/`user.ini`, not `plugin_config/obs-websocket/config.json`. `internal/obsdock/websocket.go` now reads and writes the ini files (test: `TestWebSocketINI`). Verified on real OBS Studio 30.0.2.
+- **Delay display:** label is now "Network delay"; shows "under 0.01 s" on a fast link instead of staying on "measuring…".
+- **UI:** WhatsApp button contrast fixed; header shows only "Van Link".
+- **Website:** dark, colourful theme (`website/assets/style.css`, dark tokens in `:root` plus the "dark, colourful theme" block at the end); home-page screenshots retaken with 0.2.1.
+- **Downloads:** only the 0.2.1 installers are in the live `downloads` folder (0.2.0 moved to the cPanel trash). The `downloads` git branch holds the installer files.
+- **Live-site updates:** fetch the file from raw.githubusercontent.com at the commit inside the cPanel File Manager tab and POST it to `/execute/Fileman/upload_files` (fields `dir`, `overwrite=1`, `file-1`).
+- **Test helpers:** `VANLINK_SERVER` points the app at a test website; `TESTOBS_SECONDS` sets how long the fake OBS receives.
