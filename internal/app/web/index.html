@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Van Link – Gaz Media Productions</title>
+<title>Van Link</title>
 <style>
 :root{--bg:#16181D;--panel:#1F2229;--panel2:#262A33;--line:#2E323B;--text:#E8EAED;--muted:#A3A9B0;--blue:#2E7D32;--blueText:#A7E08A;
 --good:#22C55E;--goodBg:#12351F;--goodText:#86EFAC;--warnBg:#3A2A12;--warnText:#FCD34D;--badBg:#3B1515;--badText:#FCA5A5;--live:#DC2626}
@@ -16,6 +16,7 @@ button.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-w
 button.live{background:var(--live);border-color:var(--live);color:#fff;font-weight:700;font-size:17px;padding:14px}
 button.danger{color:var(--badText)}
 button:disabled{opacity:.5;cursor:default}
+a>button{color:var(--text)}
 input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
 textarea{resize:vertical;min-height:72px;font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all}
 label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
@@ -77,8 +78,7 @@ body.dock .card{padding:12px}
 </head>
 <body>
 <header>
-<img src="logo.png" alt="Gaz Media Productions" width="36" height="36" style="flex:none">
-<div><div class="brand">Van Link</div><div class="sub nodock" style="font-size:11px;margin-top:-2px">by Gaz Media Productions</div></div>
+<div><div class="brand">Van Link</div></div>
 <span class="pill" id="rolePill"></span>
 <div class="grow"></div>
 <span class="pill plan" id="planPill"></span>
@@ -133,7 +133,7 @@ body.dock .card{padding:12px}
 <div class="msg" id="panelMsg"></div>
 <p class="sub" style="margin-top:10px">Closing this window keeps Van Link running, so the OBS panel and any broadcast carry on. To stop Van Link completely, use Quit below.</p>
 <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
-<div class="row"><button class="danger" data-act="changeRole">Change this computer's role</button><button data-act="quit">Quit Van Link</button><span class="sub grow" style="text-align:right">Van Link <span id="ver"></span> · © Gaz Media Productions</span></div>
+<div class="row"><button class="danger" data-act="changeRole">Change this computer's role</button><button data-act="quit">Quit Van Link</button><span class="sub grow" style="text-align:right">Van Link <span id="ver"></span></span></div>
 </div>
 </template>
 

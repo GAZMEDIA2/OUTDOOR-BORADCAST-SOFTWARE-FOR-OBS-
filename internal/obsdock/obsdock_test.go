@@ -113,3 +113,31 @@ func TestWebSocketCreate(t *testing.T) {
 		t.Fatalf("bad: %+v %v", w, err)
 	}
 }
+
+func TestWebSocketINI(t *testing.T) {
+	dir := t.TempDir()
+	ini := "\xef\xbb\xbf[General]\r\nFirstRun=true\r\n\r\n[BasicWindow]\r\nX=1\r\n"
+	if err := os.WriteFile(filepath.Join(dir, "global.ini"), []byte(ini), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	w, err := enableWS(dir)
+	if err != nil || !w.Enabled || !w.Auth || w.Port != 4455 || len(w.Password) < 6 {
+		t.Fatalf("enable: %+v %v", w, err)
+	}
+	r, err := readWS(dir)
+	if err != nil || r != w {
+		t.Fatalf("read back %+v, want %+v (%v)", r, w, err)
+	}
+	b, _ := os.ReadFile(filepath.Join(dir, "global.ini"))
+	s := string(b)
+	if !strings.HasPrefix(s, "\xef\xbb\xbf[General]\r\n") || !strings.Contains(s, "[OBSWebSocket]\r\n") || !strings.Contains(s, "ServerEnabled=true\r\n") {
+		t.Fatalf("bad ini:\n%q", s)
+	}
+	// An existing section keeps the user's port and password.
+	ini2 := "[OBSWebSocket]\nServerEnabled=false\nServerPort=4470\nServerPassword=keepme123\nAuthRequired=true\n"
+	os.WriteFile(filepath.Join(dir, "global.ini"), []byte(ini2), 0o600)
+	w2, _ := enableWS(dir)
+	if w2.Port != 4470 || w2.Password != "keepme123" || !w2.Enabled {
+		t.Fatalf("existing section not kept: %+v", w2)
+	}
+}

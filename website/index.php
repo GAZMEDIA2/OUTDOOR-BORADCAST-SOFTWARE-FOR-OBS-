@@ -172,19 +172,19 @@ $start = $user ? 'account.php' : 'signup.php';
       </li>
       <li>
         <div class="ico"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6a17 17 0 0 0-14.7 25.5L7 41l9.8-2.3A17 17 0 1 0 24 6z" fill="none" stroke="currentColor" stroke-width="3"/><path d="M18 17c0 7 6 13 13 13l2-3-4-2-2 2c-3-1-5-3-6-6l2-2-2-4z" fill="currentColor"/></svg></div>
-        <div><h3>The studio sends a pairing code by WhatsApp</h3><p>At the studio, click <b>Add a van</b> and give it a name, for example "Stadium van". Van Link makes a code. Press <b>Share on WhatsApp</b> (or copy it into an SMS or email) and send it to the van crew.</p></div>
+        <div><h3>The studio sends a pairing code by WhatsApp</h3><p>At the studio, click <b>Add a van</b> and give it a name, for example "Stadium van". Van Link makes a code. Press <b>Share on WhatsApp</b> (or copy it into an SMS or email) and send it to the van crew.</p><img class="stepshot" src="assets/screens/pair-studio-code.jpg" alt="Van Link at the studio after clicking Add a van: the pairing code with Copy code and Share on WhatsApp buttons" loading="lazy"></div>
       </li>
       <li>
         <div class="ico"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 24h24m-8-8 8 8-8 8" fill="none" stroke="currentColor" stroke-width="3"/><path d="M40 10v28" stroke="currentColor" stroke-width="3"/></svg></div>
-        <div><h3>The van pastes the code and sends one back</h3><p>In the van, paste the studio's code and click <b>Pair</b>. Van Link shows a reply code; send that back to the studio the same way. The two computers now find each other and connect <b>directly</b>, even when both are on Starlink or mobile data.</p></div>
+        <div><h3>The van pastes the code and sends one back</h3><p>In the van, paste the studio's code and click <b>Pair</b>. Van Link shows a reply code; send that back to the studio the same way. The two computers now find each other and connect <b>directly</b>, even when both are on Starlink or mobile data.</p><img class="stepshot" src="assets/screens/pair-van-reply.jpg" alt="Van Link in the van after pairing: Connected to City Studio, ready to go live, with the reply code to send back" loading="lazy"></div>
       </li>
       <li>
         <div class="ico live"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="24" cy="24" r="8" fill="currentColor"/></svg></div>
-        <div><h3>Press GO LIVE in the van</h3><p>Van Link starts OBS streaming for you and sends the programme. Within moments the studio screen says <b>Receiving van live</b>, and the van screen turns red: <b>LIVE AT STUDIO</b>.</p></div>
+        <div><h3>Press GO LIVE in the van</h3><p>Van Link starts OBS streaming for you and sends the programme. Within moments the studio screen says <b>Receiving van live</b>, and the van screen turns red: <b>LIVE AT STUDIO</b>.</p><img class="stepshot" src="assets/screens/van-live.jpg" alt="Van Link in the van showing the red LIVE AT STUDIO banner" loading="lazy"></div>
       </li>
       <li>
         <div class="ico"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="9" width="38" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><path d="M12 41h24" stroke="currentColor" stroke-width="3"/><path d="M14 27l7-8 5 5 4-4 6 7" fill="none" stroke="currentColor" stroke-width="3"/></svg></div>
-        <div><h3>Put the van on air from OBS at the studio</h3><p>The van appears in the studio's OBS as a source called <b>"Van Link – Stadium van"</b> in a scene called "Van Link". Add it to any scene with your graphics, lower thirds and studio cameras, just like a local camera.</p></div>
+        <div><h3>Put the van on air from OBS at the studio</h3><p>The van appears in the studio's OBS as a source called <b>"Van Link – Stadium van"</b> in a scene called "Van Link". Add it to any scene with your graphics, lower thirds and studio cameras, just like a local camera.</p><img class="stepshot" src="assets/screens/obs-studio-receiving.jpg" alt="OBS Studio at the studio showing the Van Link scene with the source Van Link - Stadium van playing the van's live picture" loading="lazy"></div>
       </li>
     </ol>
     <figure class="wide">
@@ -197,7 +197,11 @@ $start = $user ? 'account.php' : 'signup.php';
   <section id="features">
     <h2>What you see on the screens, explained</h2>
     <p class="muted intro">Both ends see the same live information, updated every second, in plain language.</p>
-    <figure class="wide"><img src="assets/monitoring.png" alt="Studio screen and van screen side by side, both showing live status, signal, delay, missing data repaired and route"><figcaption>An example of the studio and van screens during a broadcast. The numbers shown are only an example; your own figures depend on your internet connection.</figcaption></figure>
+    <div class="shots2">
+      <figure><img src="assets/screens/studio-live.jpg" alt="Van Link at the studio: Receiving van live, with signal, upload, delay, missing data and route for both ends" loading="lazy"><figcaption><b>Studio screen.</b> "Receiving van live", plus how the van and the studio are doing.</figcaption></figure>
+      <figure><img src="assets/screens/van-live.jpg" alt="Van Link in the van: LIVE AT STUDIO, with signal, sending speed and studio reception" loading="lazy"><figcaption><b>Van screen.</b> Turns red, "LIVE AT STUDIO", only when the studio confirms it is receiving.</figcaption></figure>
+    </div>
+    <p class="muted small">Real Van Link screens from our test. In that test both computers were side by side, so the delay shows almost zero; on your network the screens show your real figures.</p>
     <div class="glossary">
       <div class="g"><span class="chip red">LIVE AT STUDIO</span><p>Shown on the van screen <b>only</b> when the studio confirms it is receiving your picture. No more phoning the studio to ask "are you getting us?".</p></div>
       <div class="g"><span class="chip"><i class="bars"><i></i><i></i><i></i><i class="off"></i></i> Signal</span><p>Like the bars on a phone: how healthy the connection is right now, for the van and for the studio. Four green bars is excellent.</p></div>
@@ -205,6 +209,23 @@ $start = $user ? 'account.php' : 'signup.php';
       <div class="g"><span class="chip">Missing data (repaired)</span><p>The internet sometimes loses small pieces of video. Van Link notices and resends them before they reach the screen, and shows you how much it had to repair.</p></div>
       <div class="g"><span class="chip">Route</span><p>How the two computers are connected, for example "Direct". <b>Encrypted</b> means only your paired studio can open the video.</p></div>
       <div class="g"><span class="chip">Jump to live</span><p>A button at the studio that drops any delay that has built up, so the picture is as fresh as possible.</p></div>
+    </div>
+  </section>
+
+
+  <!-- ============ REAL OBS TEST ============ -->
+  <section id="obs-test">
+    <h2>See it working with OBS Studio</h2>
+    <p class="muted intro">These are real screenshots from a test we ran with <b>OBS Studio 30</b> on a van computer and a studio computer, using a test camera picture. Nothing was set up by hand in OBS: Van Link switched on OBS's remote control, filled in the stream settings and created the studio source by itself.</p>
+    <div class="obsrun">
+      <figure><span class="num">1</span><img src="assets/screens/obs-van-streaming.jpg" alt="OBS Studio in the van while streaming: Stop Streaming button lit, 0 dropped frames, about 2.5 to 2.8 Mbps" loading="lazy">
+        <figcaption><b>The van's OBS, streaming.</b> After GO LIVE, Van Link started OBS streaming by itself. The bar at the bottom shows the stream running with <b>0 dropped frames</b>.</figcaption></figure>
+      <figure><span class="num">2</span><img src="assets/screens/obs-studio-receiving.jpg" alt="OBS Studio at the studio: scene Van Link with source Van Link - Stadium van showing the same live picture" loading="lazy">
+        <figcaption><b>The studio's OBS, receiving.</b> Van Link created the scene <b>"Van Link"</b> with the source <b>"Van Link – Stadium van"</b>. The van's live picture plays there, ready to be put in any scene and sent to air.</figcaption></figure>
+    </div>
+    <div class="shots2 small3">
+      <figure><img src="assets/screens/settings.jpg" alt="Van Link settings: name, OBS connection, delay buffer, account and licence, network test and OBS panel" loading="lazy"><figcaption><b>Settings.</b> Your account and plan, the delay buffer, the network test and the OBS panel, all in one place.</figcaption></figure>
+      <figure><img src="assets/screens/obs-panel.jpg" alt="The compact Van Link panel for the studio and the van, as shown docked inside OBS" loading="lazy"><figcaption><b>The Van Link panel for OBS.</b> The same information in a narrow panel that sits inside OBS, for the studio (left) and the van (right).</figcaption></figure>
     </div>
   </section>
 

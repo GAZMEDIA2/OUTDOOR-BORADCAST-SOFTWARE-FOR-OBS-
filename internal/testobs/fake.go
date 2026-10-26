@@ -12,6 +12,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
 	"sync"
 )
@@ -158,7 +159,7 @@ func (o *OBS) handle(typ string, d map[string]any) any {
 		if s, ok := d["inputSettings"].(map[string]any); ok && o.receiving == nil {
 			url, _ := s["input"].(string)
 			o.receiving = exec.Command("ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-				"-i", url, "-c", "copy", "-t", "8", o.Out)
+				"-i", url, "-c", "copy", "-t", recvSeconds(), o.Out)
 			if o.receiving.Start() != nil {
 				o.receiving = nil
 			}
@@ -219,4 +220,12 @@ func readFrame(br *bufio.Reader) ([]byte, error) {
 			return msg, nil
 		}
 	}
+}
+
+// recvSeconds is how long the stand-in studio records (TESTOBS_SECONDS, default 8).
+func recvSeconds() string {
+	if v := os.Getenv("TESTOBS_SECONDS"); v != "" {
+		return v
+	}
+	return "8"
 }

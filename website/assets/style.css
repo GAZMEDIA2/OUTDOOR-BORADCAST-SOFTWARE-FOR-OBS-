@@ -130,3 +130,12 @@ figure.wide figcaption{margin-top:12px;color:var(--muted);font-size:15px;max-wid
 .final h2{color:#fff}.final p{color:#C9CDD2;margin:0}
 @media (max-width:860px){.hero2{grid-template-columns:1fr;gap:28px}.flow li{gap:14px}.ico{width:52px;height:52px}}
 @media (min-width:900px){.feat,.who{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.stepshot{display:block;margin-top:14px;width:100%;max-width:760px;border-radius:12px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(20,24,31,.08)}
+.shots2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:8px}
+.shots2 figure,.obsrun figure{margin:0}
+.shots2 img,.obsrun img{display:block;width:100%;border-radius:14px;border:1px solid var(--line);box-shadow:0 10px 30px rgba(20,24,31,.10)}
+.shots2 figcaption,.obsrun figcaption{margin-top:10px;color:var(--muted);font-size:15px}
+.home p.small{font-size:14px;margin-top:12px}
+.obsrun{display:flex;flex-direction:column;gap:28px;margin-bottom:28px}
+.obsrun figure{position:relative}
+.obsrun .num{position:absolute;top:-12px;left:-12px;z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.2)}
