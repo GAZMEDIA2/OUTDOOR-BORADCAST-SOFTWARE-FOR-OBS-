@@ -1,0 +1,11 @@
+{
+  "name": "Van Link Camera",
+  "short_name": "VL Camera",
+  "description": "Send your phone's camera live to the studio's OBS with Van Link.",
+  "start_url": "camera.php",
+  "scope": "./",
+  "display": "fullscreen",
+  "background_color": "#0B1020",
+  "theme_color": "#0B1020",
+  "icons": [{"src": "assets/icon.png", "sizes": "256x256", "type": "image/png", "purpose": "any"}]
+}

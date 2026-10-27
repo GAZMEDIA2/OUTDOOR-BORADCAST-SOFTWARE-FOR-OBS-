@@ -1,5 +1,6 @@
 # Van Link website
 Options -Indexes
+AddType application/manifest+json .webmanifest
 <FilesMatch "^(config\.php|config\.sample\.php|.*\.md)$">
   Require all denied
 </FilesMatch>
