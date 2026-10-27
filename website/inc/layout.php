@@ -17,6 +17,7 @@ function page_head(string $title, ?array $user = null): void {
   <nav>
     <a href="./#features">Features</a>
     <a href="./#pricing">Pricing</a>
+    <a href="./#phone">Phone camera</a>
     <?php if ($user): ?>
       <a href="account.php">My account</a>
       <?php if ($user['is_admin']): ?><a href="admin.php">Admin</a><?php endif ?>

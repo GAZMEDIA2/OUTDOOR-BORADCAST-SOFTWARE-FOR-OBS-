@@ -26,7 +26,7 @@ import (
 )
 
 // Version of Van Link.
-var Version = "0.2.1"
+var Version = "0.3.0"
 
 // App is the running program.
 type App struct {

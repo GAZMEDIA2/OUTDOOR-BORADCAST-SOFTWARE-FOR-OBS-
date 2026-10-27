@@ -81,6 +81,7 @@ select.ctl{appearance:none;-webkit-appearance:none;text-align:center}
     <li>Wi-Fi or a strong 4G/5G signal gives the best picture.</li>
     <li>Tip: add this page to your home screen to open it like an app.</li>
   </ul>
+  <p id="getApp" class="hide"><a href="apps/VanLink-Camera.apk" download style="color:var(--green2)">Android: get the Van Link Camera app (APK)</a></p>
 </section>
 
 <section id="live" class="hide">
@@ -113,6 +114,7 @@ let videoSender = null, ice = [], wakeLock = null, retryTimer = null, pollTimer 
 const store = {get: k => { try { return localStorage.getItem(k) || ""; } catch { return ""; } },
                set: (k, v) => { try { localStorage.setItem(k, v); } catch {} }};
 $("#name").value = store.get("vlcam.name");
+if (/Android/i.test(navigator.userAgent) && !/VanLinkCamera/.test(navigator.userAgent)) $("#getApp").classList.remove("hide");
 if (!$("#code").value) $("#code").value = store.get("vlcam.code");
 
 async function api(body) {

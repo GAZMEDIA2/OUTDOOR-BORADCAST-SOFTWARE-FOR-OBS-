@@ -1,0 +1,52 @@
+name: Build Van Link Camera (Android)
+
+# Builds the Android app (android/camera) as VanLink-Camera.apk.
+# For a stable signature, add repository secrets VLCAM_KEYSTORE_B64 (base64 of
+# the .jks file) and VLCAM_KEYSTORE_PASSWORD; without them a debug key is used.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths: ["android/**", ".github/workflows/android.yml"]
+  pull_request:
+    paths: ["android/**", ".github/workflows/android.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - name: Signing key
+        env:
+          KS: ${{ secrets.VLCAM_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS" ]; then
+            echo "$KS" | base64 -d > "$RUNNER_TEMP/vlcam.jks"
+            echo "VLCAM_KEYSTORE=$RUNNER_TEMP/vlcam.jks" >> "$GITHUB_ENV"
+          fi
+      - name: Build
+        env:
+          VLCAM_KEYSTORE_PASSWORD: ${{ secrets.VLCAM_KEYSTORE_PASSWORD }}
+        run: |
+          gradle -p android/camera assembleRelease --no-daemon
+          mkdir -p dist && cp android/camera/app/build/outputs/apk/release/app-release.apk dist/VanLink-Camera.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VanLink-Camera-apk
+          path: dist/VanLink-Camera.apk
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/VanLink-Camera.apk

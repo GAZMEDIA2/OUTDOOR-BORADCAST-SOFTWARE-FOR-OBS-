@@ -1,6 +1,7 @@
 # Van Link website
 Options -Indexes
 AddType application/manifest+json .webmanifest
+AddType application/vnd.android.package-archive .apk
 <FilesMatch "^(config\.php|config\.sample\.php|.*\.md)$">
   Require all denied
 </FilesMatch>

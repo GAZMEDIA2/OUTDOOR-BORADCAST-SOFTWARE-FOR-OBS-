@@ -301,7 +301,7 @@ function studioView() {
 
 // ------------------------------------------------------------ phone cameras
 function phonesView() {
-  let h = `<div class="card nodock"><div class="row"><div class="grow"><h2>Phone cameras</h2><p class="sub">Any iPhone or Android phone can be an extra camera. It opens a page in its browser, nothing to install, and appears in OBS as its own source in the scene "Van Link".</p></div>
+  let h = `<div class="card nodock"><div class="row"><div class="grow"><h2>Phone cameras</h2><p class="sub">Any iPhone or Android phone can be an extra camera. It opens the link in its browser (or the Van Link Camera app on Android) and appears in OBS as its own source in the scene "Van Link".</p></div>
   <input id="newPhoneName" placeholder="Name, e.g. Touchline cam" style="max-width:220px"><button class="primary" data-act="addPhone">Add a phone camera</button></div>${note("addPhone")}</div>`;
   for (const p of S.phones || []) {
     h += `<div class="card" id="p_${p.id}">
