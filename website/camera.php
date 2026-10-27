@@ -81,7 +81,7 @@ select.ctl{appearance:none;-webkit-appearance:none;text-align:center}
     <li>Wi-Fi or a strong 4G/5G signal gives the best picture.</li>
     <li>Tip: add this page to your home screen to open it like an app.</li>
   </ul>
-  <p id="getApp" class="hide"><a href="apps/VanLink-Camera.apk" download style="color:var(--green2)">Android: get the Van Link Camera app (APK)</a></p>
+  <p id="getApp" class="hide"><a href="camera-app.php" style="color:var(--green2)">Android: get the Van Link Camera app (APK)</a></p>
 </section>
 
 <section id="live" class="hide">

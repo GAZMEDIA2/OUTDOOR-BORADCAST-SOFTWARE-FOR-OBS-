@@ -260,7 +260,7 @@ $start = $user ? 'account.php' : 'signup.php';
         <h3>Get the camera on your phone</h3>
         <p style="margin-bottom:14px">Use the camera code the studio sent you.</p>
         <p style="display:flex;flex-direction:column;gap:10px">
-          <a class="btn big" href="apps/VanLink-Camera.apk" download>Download the Android app (APK)</a>
+          <a class="btn big" href="camera-app.php">Download the Android app (APK)</a>
           <a class="btn ghost big" href="camera.php">Open the camera in the browser (iPhone and Android)</a>
         </p>
         <p style="font-size:14px;margin-top:12px">Installing the APK: open the downloaded file and allow "Install unknown apps" for your browser when Android asks.</p>
