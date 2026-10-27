@@ -41,8 +41,6 @@ jobs:
         run: |
           gradle -p android/camera assembleRelease --no-daemon
           mkdir -p dist && cp android/camera/app/build/outputs/apk/release/app-release.apk dist/VanLink-Camera.apk
-      - name: APK as text (temporary, to copy it to the website)
-        run: base64 -w 0 dist/VanLink-Camera.apk; echo; sha256sum dist/VanLink-Camera.apk
       - uses: actions/upload-artifact@v4
         with:
           name: VanLink-Camera-apk
