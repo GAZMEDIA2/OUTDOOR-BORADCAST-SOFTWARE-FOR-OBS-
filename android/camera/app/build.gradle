@@ -1,0 +1,38 @@
+plugins { id "com.android.application" }
+
+// Release signing comes from environment variables (GitHub secrets). Without
+// them the APK is signed with a throwaway debug key: fine for trying it out,
+// but each build then needs uninstalling the old one first.
+def ks = System.getenv("VLCAM_KEYSTORE")
+
+android {
+    namespace "ng.com.gazgoc.vanlink.camera"
+    compileSdk 34
+    defaultConfig {
+        applicationId "ng.com.gazgoc.vanlink.camera"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+    signingConfigs {
+        release {
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv("VLCAM_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("VLCAM_KEY_ALIAS") ?: "vanlinkcamera"
+                keyPassword System.getenv("VLCAM_KEYSTORE_PASSWORD")
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig ks ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

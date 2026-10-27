@@ -72,6 +72,10 @@ page_head('My account', $user);
         <p><a class="btn small" style="width:100%" href="download.php?f=<?= urlencode($n) ?>"><?= e($n) ?></a></p>
       <?php endforeach ?>
       <p class="muted" style="font-size:14px">Install on both the studio and the van computer, then sign in with this email and password.</p>
+      <h3 style="margin-top:18px">Phone cameras</h3>
+      <p><a class="btn small" style="width:100%" href="camera-app.php">Van Link Camera for Android (APK)</a></p>
+      <p><a class="btn small ghost" style="width:100%" href="camera.php">Open the phone camera in the browser (iPhone and Android)</a></p>
+      <p class="muted" style="font-size:14px">At the studio, click <b>Add a phone camera</b> in Van Link and send the link to the phone. Camera operators don't need an account.</p>
     </div>
   </div>
 

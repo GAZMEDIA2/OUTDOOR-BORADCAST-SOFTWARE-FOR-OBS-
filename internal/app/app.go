@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/GAZMEDIA2/vanlink/internal/licence"
@@ -25,27 +26,29 @@ import (
 )
 
 // Version of Van Link.
-var Version = "0.2.1"
+var Version = "0.3.0"
 
 // App is the running program.
 type App struct {
 	store *store
 
-	mu       sync.Mutex
-	obs      *obsws.Client
-	obsErr   string
-	studio   map[string]*studioVan
-	van      *link.Session
-	vanReply string
-	vanLive  bool // OBS stream output active (van)
-	netTest  *netx.TestResult
-	testing  bool
-	lastMsg  string
-	quit     chan struct{}
-	userQuit chan struct{}
-	quitOnce sync.Once
-	showReq  chan struct{}
-	dockURL  string
+	mu          sync.Mutex
+	obs         *obsws.Client
+	obsErr      string
+	studio      map[string]*studioVan
+	phones      map[string]*phoneCam
+	phoneAsking atomic.Bool // a phone status check with the website is running
+	van         *link.Session
+	vanReply    string
+	vanLive     bool // OBS stream output active (van)
+	netTest     *netx.TestResult
+	testing     bool
+	lastMsg     string
+	quit        chan struct{}
+	userQuit    chan struct{}
+	quitOnce    sync.Once
+	showReq     chan struct{}
+	dockURL     string
 }
 
 // ShowRequested delivers "bring the window forward" requests.
@@ -86,7 +89,7 @@ type studioVan struct {
 
 // New loads settings and restarts any saved links.
 func New(configDir string) *App {
-	a := &App{store: loadStore(configDir), studio: map[string]*studioVan{}, quit: make(chan struct{}), userQuit: make(chan struct{}), showReq: make(chan struct{}, 1)}
+	a := &App{store: loadStore(configDir), studio: map[string]*studioVan{}, phones: map[string]*phoneCam{}, quit: make(chan struct{}), userQuit: make(chan struct{}), showReq: make(chan struct{}, 1)}
 	cfg := a.store.get()
 	switch cfg.Role {
 	case "studio":
@@ -94,6 +97,9 @@ func New(configDir string) *App {
 			if err := a.startStudioVan(v); err != nil {
 				log.Printf("could not restart %s: %v", v.Name, err)
 			}
+		}
+		for _, p := range cfg.Phones {
+			a.startPhone(p)
 		}
 	case "van":
 		if cfg.StudioCode != "" {
@@ -171,10 +177,8 @@ func (a *App) AddVan(name string) (string, error) {
 	if name == "" {
 		name = "Van " + strconv.Itoa(n+1)
 	}
-	for _, v := range cfg.Vans {
-		if strings.EqualFold(v.Name, name) {
-			return "", errors.New("a van with that name already exists")
-		}
+	if nameTaken(cfg, name) {
+		return "", errors.New("a van or phone with that name already exists")
 	}
 	st := a.Licence()
 	if !usable(st) {
@@ -459,6 +463,9 @@ func (a *App) connectOBS() {
 		ids = append(ids, id)
 		a.studio[id].obsReady = false
 	}
+	for _, p := range a.phones {
+		p.obsReady = false
+	}
 	isVan := a.van != nil
 	a.mu.Unlock()
 	a.logf("connected to OBS")
@@ -473,6 +480,7 @@ func (a *App) connectOBS() {
 func (a *App) watchdog() {
 	t := time.NewTicker(2 * time.Second)
 	defer t.Stop()
+	tick := 0
 	for {
 		select {
 		case <-a.quit:
@@ -480,6 +488,8 @@ func (a *App) watchdog() {
 		case <-t.C:
 		}
 		a.connectOBS()
+		tick++
+		a.checkPhones(tick%3 == 1) // the website is asked every 6 s
 		a.mu.Lock()
 		obs := a.obs
 		vans := make([]*studioVan, 0, len(a.studio))
@@ -577,8 +587,9 @@ type State struct {
 		Supported bool `json:"supported"`
 		Done      bool `json:"done"`
 	} `json:"setup"`
-	Vans []VanView `json:"vans"`
-	Van  *struct {
+	Vans   []VanView   `json:"vans"`
+	Phones []PhoneView `json:"phones"`
+	Van    *struct {
 		Reply     string        `json:"reply"`
 		Streaming bool          `json:"streaming"`
 		Snap      link.Snapshot `json:"snap"`
@@ -609,6 +620,8 @@ func (a *App) State() State {
 			Snap: v.sess.Snapshot()})
 	}
 	sort.Slice(s.Vans, func(i, j int) bool { return s.Vans[i].Name < s.Vans[j].Name })
+	s.Phones = a.phoneViews()
+	sort.Slice(s.Phones, func(i, j int) bool { return s.Phones[i].Name < s.Phones[j].Name })
 	if a.van != nil {
 		s.Van = &struct {
 			Reply     string        `json:"reply"`
@@ -639,10 +652,14 @@ func (a *App) SetRole(role string) error {
 		a.van.Close()
 		a.van, a.vanReply = nil, ""
 	}
+	cfg := a.store.get()
+	if cfg.Role != role || role == "van" {
+		a.phones = map[string]*phoneCam{}
+	}
 	a.mu.Unlock()
 	return a.store.update(func(c *Config) {
 		if c.Role != role {
-			c.Vans, c.StudioCode = nil, ""
+			c.Vans, c.Phones, c.StudioCode = nil, nil, ""
 		}
 		c.Role = role
 		if c.Name == "" {

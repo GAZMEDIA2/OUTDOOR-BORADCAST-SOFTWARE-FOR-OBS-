@@ -64,6 +64,7 @@ details summary{cursor:pointer;color:var(--blueText);font-size:13px;margin-top:6
 .events{font-size:12px;color:var(--muted);margin:6px 0 0;padding:0;list-style:none}
 .events li{padding:2px 0}
 .mono{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all;color:var(--muted)}
+.camcode{font:700 26px/1.2 ui-monospace,Consolas,monospace;letter-spacing:3px;color:var(--blueText)}
 .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#1F4D22;color:#C5EBB0;margin-left:6px;font-weight:600}
 .big{font-size:22px;font-weight:700;margin:0 0 4px}
 .hide{display:none!important}
@@ -182,7 +183,7 @@ function render() {
     pp.className = "pill " + (L.ok ? "plan" : "bad");
     pp.textContent = !L.ok ? "Locked" : L.trialLeft != null ? `Trial · ${Math.floor(L.trialLeft/60)} min left today` : L.planName;
   }
-  const key = [L.ok, L.reason, S.account, showSettings, (S.vans||[]).map(v=>v.id+v.hasReply).join(","), S.van ? "paired" : "none"].join("|");
+  const key = [L.ok, L.reason, S.account, showSettings, (S.vans||[]).map(v=>v.id+v.hasReply).join(","), (S.phones||[]).map(p=>p.id).join(","), S.van ? "paired" : "none"].join("|");
   if (key !== viewKey) { viewKey = key; buildView(); }
   updateView();
 }
@@ -295,7 +296,40 @@ function studioView() {
       <button class="danger" style="margin-top:10px" data-act="removeVan" data-id="${v.id}">Remove this van</button></details>
     </div>`;
   }
+  return h + phonesView();
+}
+
+// ------------------------------------------------------------ phone cameras
+function phonesView() {
+  let h = `<div class="card nodock"><div class="row"><div class="grow"><h2>Phone cameras</h2><p class="sub">Any iPhone or Android phone can be an extra camera. It opens the link in its browser (or the Van Link Camera app on Android) and appears in OBS as its own source in the scene "Van Link".</p></div>
+  <input id="newPhoneName" placeholder="Name, e.g. Touchline cam" style="max-width:220px"><button class="primary" data-act="addPhone">Add a phone camera</button></div>${note("addPhone")}</div>`;
+  for (const p of S.phones || []) {
+    h += `<div class="card" id="p_${p.id}">
+    <div class="row"><h2 class="grow">${esc(p.name)}</h2><span class="sub" id="p_${p.id}_src"></span></div>
+    <div id="p_${p.id}_mon" style="margin-top:10px"></div>
+    <div class="row" style="margin-top:12px;align-items:flex-end">
+      <div class="grow"><p class="sub">On the phone, open the link below, or go to the Van Link website's camera page and enter:</p>
+        <div class="camcode">${esc(p.code)}</div>
+        <input readonly id="p_${p.id}_link" value="${esc(p.link)}" style="margin-top:6px"></div>
+    </div>
+    <div class="row" style="margin-top:8px"><button data-act="copy" data-src="p_${p.id}_link">Copy link</button>
+      <a href="${share("Open this on your phone to send its camera to the studio (Van Link). Camera code: "+p.code, p.link)}" target="_blank" rel="noopener"><button>Share on WhatsApp</button></a>
+      <span class="grow"></span><button class="danger nodock" data-act="removePhone" data-id="${p.id}">Remove</button></div>
+    </div>`;
+  }
   return h;
+}
+function phoneMon(p) {
+  const st = p.status || {};
+  let b;
+  if (!S.obs.connected) b = ["idle", "Waiting for OBS"];
+  else if (!st.checked) b = ["idle", "Checking…"];
+  else if (st.error) b = ["warn", st.error];
+  else if (!st.sourceOpen) b = ["warn", "The OBS source has not opened yet – keep OBS open"];
+  else if (st.state === "live") b = [st.onAir ? "onair" : "good", (st.onAir ? "ON AIR · " : "Phone live · ") + (st.phone || p.name) + " · " + since("p" + p.id, true)];
+  else b = ["idle", "Waiting for the phone to connect"];
+  if (st.state !== "live") since("p" + p.id, false);
+  return `<div class="banner ${b[0]}"><span class="dot"></span>${esc(b[1])}</div>`;
 }
 
 function studioMon(v) {
@@ -389,6 +423,11 @@ function updateView() {
     const pair = $("#v_" + v.id + "_pair");
     if (v.snap.connected && pair.open && !pair.dataset.touched) pair.open = false;
   }
+  if (S.role === "studio") for (const p of S.phones || []) {
+    const mon = $("#p_" + p.id + "_mon"); if (!mon) continue;
+    mon.innerHTML = phoneMon(p);
+    $("#p_" + p.id + "_src").textContent = p.obsReady ? "OBS source: " + p.obsSource : (S.obs.connected ? "Creating OBS source…" : "");
+  }
   if (S.role === "van" && S.van) {
     $("#vanMon").innerHTML = vanMon();
     $("#vanAdv").innerHTML = advanced(S.van.snap);
@@ -463,12 +502,14 @@ document.addEventListener("click", async e => {
       case "addVan": await api("/api/studio/add", {name: $("#newVanName").value}); done("add", "Van added. Send its code to the van."); break;
       case "reply": await api("/api/studio/reply", {id: el.dataset.id, code: $("#v_"+el.dataset.id+"_reply").value}); done("reply"+el.dataset.id, "Dialling the van…"); break;
       case "jump": await api("/api/studio/jump", {id: el.dataset.id}); el.textContent = "Done"; setTimeout(() => el.textContent = "Jump to live", 2000); return;
+      case "addPhone": await api("/api/phone/add", {name: $("#newPhoneName").value}); done("addPhone", "Phone camera added. Send its link to the phone."); break;
+      case "removePhone": if (confirm("Remove this phone camera and its OBS source?")) await api("/api/phone/remove", {id: el.dataset.id}); break;
       case "removeVan": if (confirm("Remove this van and its OBS source?")) await api("/api/studio/remove", {id: el.dataset.id}); break;
       case "pair": await api("/api/van/pair", {code: $("#studioCode").value}); done("pair", "Paired. Send the reply code back to the studio."); break;
       case "unpair": if (confirm("Forget this studio? You will need a new code to reconnect.")) await api("/api/van/unpair"); break;
       case "golive": el.disabled = true; await api("/api/van/golive"); break;
       case "stop": if (confirm("Stop sending to the studio?")) await api("/api/van/stop"); break;
-      case "copy": { const t = $("#"+el.dataset.src); t.select(); try { await navigator.clipboard.writeText(t.value); } catch { document.execCommand("copy"); } el.textContent = "Copied"; setTimeout(() => el.textContent = "Copy code", 2000); return; }
+      case "copy": { const t = $("#"+el.dataset.src); t.select(); try { await navigator.clipboard.writeText(t.value); } catch { document.execCommand("copy"); } const label = el.textContent; el.textContent = "Copied"; setTimeout(() => el.textContent = label, 2000); return; }
       case "closeSettings": showSettings = false; break;
       case "saveSettings": {
         const body = {name: $("#sName").value, obsAddr: $("#sObsAddr").value, useStun: $("#sStun").checked, obsManual: !$("#sObsAuto").checked};
@@ -485,7 +526,7 @@ document.addEventListener("click", async e => {
       case "changeRole": if (confirm("Change role? Existing pairings on this computer will be removed.")) { await api("/api/role", {role: S.role === "studio" ? "van" : "studio"}); showSettings = false; } break;
     }
   } catch (err) {
-    const k = {addVan:"add", reply:"reply"+el.dataset.id, pair:"pair", golive:"live", stop:"live", signin:"signin", redeem:"redeem", refreshLic:"refreshLic"}[act];
+    const k = {addVan:"add", addPhone:"addPhone", reply:"reply"+el.dataset.id, pair:"pair", golive:"live", stop:"live", signin:"signin", redeem:"redeem", refreshLic:"refreshLic"}[act];
     if (k) done(k, err.message, true); else alert(err.message);
     return;
   }

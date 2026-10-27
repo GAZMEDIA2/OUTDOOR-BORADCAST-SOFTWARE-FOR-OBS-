@@ -42,4 +42,10 @@ return [
     'paystack_currency'   => 'NGN',       // the currency your Paystack account charges in
     'usd_rate'            => 1600,        // how many NGN per 1 USD when charging (update as needed)
 
+    // Phone cameras (camera.php). Optional: the address lookup / relay servers
+    // phones and the studio use to find each other. Leave out to use public STUN.
+    // Add a TURN relay here if some phones can never connect directly, e.g.
+    // ['urls' => 'turn:turn.example.com:3478', 'username' => '...', 'credential' => '...'].
+    // 'cam_ice_servers' => [['urls' => 'stun:stun.l.google.com:19302']],
+
 ];

@@ -71,6 +71,8 @@ func (a *App) Handler() http.Handler {
 	})
 	post("/api/studio/jump", func(r *http.Request) (any, error) { return nil, a.JumpToLive(read(r).ID) })
 	post("/api/studio/remove", func(r *http.Request) (any, error) { return nil, a.RemoveVan(read(r).ID) })
+	post("/api/phone/add", func(r *http.Request) (any, error) { return a.AddPhone(strings.TrimSpace(read(r).Name)) })
+	post("/api/phone/remove", func(r *http.Request) (any, error) { return nil, a.RemovePhone(read(r).ID) })
 	post("/api/van/pair", func(r *http.Request) (any, error) {
 		reply, err := a.PairVan(read(r).Code)
 		return map[string]string{"reply": reply}, err

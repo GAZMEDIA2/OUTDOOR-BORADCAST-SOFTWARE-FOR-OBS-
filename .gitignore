@@ -1,2 +1,6 @@
 dist/
 *.syso
+android/camera/.gradle/
+android/camera/build/
+android/camera/app/build/
+website/apps/*.apk
