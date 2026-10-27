@@ -9,7 +9,7 @@ function page_head(string $title, ?array $user = null): void {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?> – Van Link</title>
 <meta name="description" content="Van Link sends live video from your outside broadcast van straight to your studio over the internet, with OBS Studio. No satellite dish.">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=<?= filemtime(__DIR__ . '/../assets/style.css') ?>">
 </head>
 <body>
 <header class="top">
