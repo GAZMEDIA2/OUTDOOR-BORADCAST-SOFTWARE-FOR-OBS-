@@ -7,13 +7,13 @@ BEGIN
   BEGIN
     BLOCK "040904B0"
     BEGIN
-      VALUE "CompanyName", "Gaz Media Productions"
+      VALUE "CompanyName", "Van Link"
       VALUE "FileDescription", "Van Link - live video from the van to the studio"
       VALUE "ProductName", "Van Link"
       VALUE "FileVersion", "0.1.3"
       VALUE "ProductVersion", "0.1.3"
       VALUE "OriginalFilename", "VanLink.exe"
-      VALUE "LegalCopyright", "(c) 2026 Gaz Media Productions"
+      VALUE "LegalCopyright", "(c) 2026 Van Link"
     END
   END
   BLOCK "VarFileInfo"

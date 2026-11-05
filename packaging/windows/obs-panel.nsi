@@ -4,10 +4,10 @@ Unicode true
 !include "LogicLib.nsh"
 
 !ifndef VERSION
-  !define VERSION "0.3.0"
+  !define VERSION "0.3.1"
 !endif
 !define APP "Van Link OBS Panel"
-!define COMPANY "Gaz Media Productions"
+!define COMPANY "Van Link"
 !define HELPER "vanlink-obs-panel.exe"
 !define UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\VanLinkOBSPanel"
 
@@ -16,7 +16,7 @@ OutFile "..\..\dist\VanLink-OBS-Panel-Setup-${VERSION}.exe"
 InstallDir "$LOCALAPPDATA\Van Link OBS Panel"
 RequestExecutionLevel user
 SetCompressor /SOLID lzma
-BrandingText "${APP} ${VERSION} - ${COMPANY}"
+BrandingText "${APP} ${VERSION}"
 
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey "ProductName" "${APP}"

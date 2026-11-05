@@ -3,10 +3,10 @@ Unicode true
 !include "MUI2.nsh"
 
 !ifndef VERSION
-  !define VERSION "0.3.0"
+  !define VERSION "0.3.1"
 !endif
 !define APP "Van Link"
-!define COMPANY "Gaz Media Productions"
+!define COMPANY "Van Link"
 !define EXE "VanLink.exe"
 !define UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\VanLink"
 
@@ -16,7 +16,7 @@ InstallDir "$PROGRAMFILES64\${APP}"
 InstallDirRegKey HKLM "Software\VanLink" "InstallDir"
 RequestExecutionLevel admin
 SetCompressor /SOLID lzma
-BrandingText "${APP} ${VERSION} - ${COMPANY}"
+BrandingText "${APP} ${VERSION}"
 
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey "ProductName" "${APP}"
@@ -31,7 +31,7 @@ VIAddVersionKey "CompanyName" "${COMPANY}"
 !define MUI_ABORTWARNING
 !define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "welcome.bmp"
-!define MUI_WELCOMEPAGE_TITLE "Welcome to ${APP} by ${COMPANY}"
+!define MUI_WELCOMEPAGE_TITLE "Welcome to ${APP}"
 !define MUI_WELCOMEPAGE_TEXT "Van Link sends live video from your outside broadcast van straight to your studio over the internet, with OBS Studio.$\r$\n$\r$\nInstall it on both the van computer and the studio computer. Van Link opens in its own window and also adds a Van Link panel inside OBS.$\r$\n$\r$\nYou will also need OBS Studio 28 or newer.$\r$\n$\r$\nClick Next to continue."
 !define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_TEXT "Open ${APP} now"

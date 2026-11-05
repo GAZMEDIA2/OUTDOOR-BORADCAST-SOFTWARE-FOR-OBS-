@@ -2,7 +2,6 @@
 
 **Live video from your outside broadcast van straight to your studio over the internet, with OBS Studio. No satellite dish, no server in between.**
 
-A product of **Gaz Media Productions**.
 
 ## How it works
 
