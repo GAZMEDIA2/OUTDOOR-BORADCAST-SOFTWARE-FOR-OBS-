@@ -2,7 +2,6 @@
 
 **Live video from your outside broadcast van straight to your studio over the internet, with OBS Studio. No satellite dish, no server in between.**
 
-A product of **Gaz Media Productions**.
 
 ## How it works
 
@@ -12,6 +11,16 @@ A product of **Gaz Media Productions**.
 4. The van clicks **GO LIVE**. OBS's Program output appears at the studio as its own OBS source, encrypted end to end.
 
 Both ends see the same monitoring screen: live status, signal bars, delay, data repaired, route, and a history of drops and reconnections.
+
+## Phone cameras (iPhone and Android, no app to install)
+
+At the studio, click **Add a phone camera**. Van Link creates an OBS Browser Source for it in the "Van Link" scene and shows a code (e.g. `ABCD-EFGH`) and a link to send to the phone. On the phone, open the link (or `vanlink.gazgoc.com.ng/camera.php` and type the code), allow the camera, and the picture and sound appear in OBS.
+
+- The video goes directly from the phone to the studio's OBS (WebRTC, encrypted). The website only passes the connection details (`website/api/cam.php`).
+- The phone shows **Live at the studio**, and a red **ON AIR** light when the source is on OBS's Program. It can flip cameras, mute the mic and choose 480p/720p/1080p.
+- The camera page can be added to the phone's home screen to open like an app.
+- Without Van Link, open `studio-camera.php` in a browser: it makes a camera code and the address to paste into an OBS Browser Source by hand.
+- Strict networks at both ends may need a TURN relay: add it under `cam_ice_servers` in the website's `config.php`.
 
 ## Connecting directly without a server
 

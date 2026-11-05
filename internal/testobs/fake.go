@@ -28,6 +28,7 @@ type OBS struct {
 	server    string
 	streaming *exec.Cmd
 	receiving *exec.Cmd
+	browser   map[string]string // browser sources created: name -> page address
 }
 
 // Start listens on a free local port. out = where received video is saved.
@@ -156,7 +157,13 @@ func (o *OBS) handle(typ string, d map[string]any) any {
 	case "GetInputList":
 		return map[string]any{"inputs": []map[string]string{}}
 	case "CreateInput", "SetInputSettings":
-		if s, ok := d["inputSettings"].(map[string]any); ok && o.receiving == nil {
+		if s, ok := d["inputSettings"].(map[string]any); ok && s["url"] != nil {
+			if o.browser == nil {
+				o.browser = map[string]string{}
+			}
+			name, _ := d["inputName"].(string)
+			o.browser[name], _ = s["url"].(string)
+		} else if ok && o.receiving == nil {
 			url, _ := s["input"].(string)
 			o.receiving = exec.Command("ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
 				"-i", url, "-c", "copy", "-t", recvSeconds(), o.Out)
@@ -170,6 +177,13 @@ func (o *OBS) handle(typ string, d map[string]any) any {
 		return map[string]any{"mediaState": "OBS_MEDIA_STATE_PLAYING"}
 	}
 	return map[string]any{}
+}
+
+// BrowserURL is the page address of a browser source OBS was asked to create.
+func (o *OBS) BrowserURL(name string) string {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return o.browser[name]
 }
 
 // WaitReceived waits for the receiving ffmpeg to finish its clip.

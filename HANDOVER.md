@@ -1,6 +1,6 @@
 # Van Link – Project handover (25 Oct 2026)
 
-**Product:** Van Link, by Gaz Media Productions (owner: Engr. Ngwana Joshua, admin email `ioghenevwogaga@gmail.com`).
+**Product:** Van Link, an independent product (owner: Engr. Ngwana Joshua, admin email `ioghenevwogaga@gmail.com`).
 **What it does:** sends live video from an outside-broadcast (OB) van to the studio over the internet (Starlink, 4G or 5G) with OBS Studio, replacing a satellite dish. Direct van-to-studio, encrypted, with no server in the middle and monitoring at both ends.
 **Code:** GitHub `GAZMEDIA2/OUTDOOR-BORADCAST-SOFTWARE-FOR-OBS-` (branch `main`).
 **Website:** `vanlink.gazgoc.com.ng` (Namecheap shared hosting, cPanel, server premium52.web-hosting.com).
@@ -13,7 +13,7 @@ To continue in a new Claude session, share this file and say: *"Continue the Van
 
 | Topic | Decision |
 |---|---|
-| Name and brand | **Van Link**, a Gaz Media Productions product. Icon = Gaz Media camera logo + **dark round badge with a red signal symbol** (distinct from Gaz Presenter). Always ask the owner for logos before creating branding. |
+| Name and brand | **Van Link**, fully independent: no Gaz or Gaz Media name or logo anywhere. Icon = gradient signal arcs (green, blue, purple, pink) with a red dot on a dark navy rounded square (same as the Van Link Facebook page). Source: `packaging/brand/vanlink-icon-1024.png`. Always ask the owner for logos before creating branding. |
 | Architecture | Separate **Van Link program** (Go) + **Van Link panel docked in OBS**. Video: OBS → SRT → Van Link → direct internet path → Van Link → OBS Media Source. OBS controlled via its built-in obs-websocket (local only), switched on **automatically** by Van Link. |
 | Video sent | OBS **Program output** (Program is always primary). Extra camera feeds = Pro feature, later. |
 | Networking | **No relay/server.** Studio computer is the "server". Pairing by codes swapped over WhatsApp/SMS; direct dialling over IPv6, IPv4 hole punching, LAN, reverse direction. Public STUN (address lookup only) allowed, can be switched off. Optional relay can be added later for strict ↔ strict networks. |
@@ -62,7 +62,7 @@ To continue in a new Claude session, share this file and say: *"Continue the Van
 - MySQL database **gazgdxcg_vanlink**, user **gazgdxcg_gazmedia** (ALL PRIVILEGES). The password is known only to the owner.
 
 ### Documents
-- "Van Link – Product Overview" (Claude Docs + Word file) with 4 pictures, pricing, FAQ and roadmap. Labelled early access. Company: Gaz Media Productions.
+- "Van Link – Product Overview" (Claude Docs + Word file) with 4 pictures, pricing, FAQ and roadmap. Labelled early access.
 
 ---
 

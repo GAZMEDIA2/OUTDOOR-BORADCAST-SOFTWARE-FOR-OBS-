@@ -20,6 +20,10 @@ type Config struct {
 	// Studio: one entry per van.
 	Vans []VanEntry `json:"vans"`
 
+	// Studio: phone cameras (sent from a phone's browser, received by an OBS
+	// browser source that talks to the Van Link website).
+	Phones []PhoneEntry `json:"phones"`
+
 	// Van: the studio code it was paired with, and its own port.
 	StudioCode string `json:"studioCode"`
 	VanPort    int    `json:"vanPort"`
@@ -40,6 +44,15 @@ type VanEntry struct {
 	LinkPort   int    `json:"linkPort"` // fixed, so the studio's code keeps working
 	OBSPort    int    `json:"obsPort"`  // where OBS's source listens (localhost)
 	ReplyCode  string `json:"replyCode"`
+}
+
+// PhoneEntry is one phone camera at the studio. Room is the code the phone
+// enters; Key proves to the website that this studio owns the room.
+type PhoneEntry struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Room string `json:"room"`
+	Key  string `json:"key"`
 }
 
 const (
@@ -85,6 +98,7 @@ func (s *store) get() Config {
 	defer s.mu.Unlock()
 	c := s.cfg
 	c.Vans = append([]VanEntry(nil), s.cfg.Vans...)
+	c.Phones = append([]PhoneEntry(nil), s.cfg.Phones...)
 	return c
 }
 

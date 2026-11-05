@@ -2,6 +2,7 @@
 // One-time setup: creates the database tables and your admin account.
 // Open https://vanlink.gazgoc.com.ng/install.php once, then DELETE this file.
 require __DIR__ . '/inc/bootstrap.php';
+require __DIR__ . '/inc/cam.php';
 
 $driver = db()->getAttribute(PDO::ATTR_DRIVER_NAME);
 $id = $driver === 'sqlite' ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY';
@@ -27,6 +28,7 @@ $tables = [
     "CREATE TABLE IF NOT EXISTS login_attempts (id $id, k VARCHAR(200) NOT NULL, at INT NOT NULL)$opts",
 ];
 foreach ($tables as $sql) db()->exec($sql);
+cam_table();
 foreach (['CREATE INDEX lic_user ON licences (user_id)', 'CREATE INDEX dev_user ON devices (user_id)',
           'CREATE UNIQUE INDEX usage_day ON usage_log (user_id, day)', 'CREATE INDEX att_k ON login_attempts (k)'] as $ix) {
     try { db()->exec($ix); } catch (PDOException $e) { /* already exists */ }

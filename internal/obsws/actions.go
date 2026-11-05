@@ -43,6 +43,41 @@ func (c *Client) StreamStatus() (StreamStatus, error) {
 // EnsureReceiver creates (or updates) the studio's media source for one van,
 // inside the "Van Link" scene, listening for SRT on localhost only.
 func (c *Client) EnsureReceiver(inputName, url string) error {
+	settings := map[string]any{
+		"is_local_file":       false,
+		"input":               url,
+		"input_format":        "mpegts",
+		"hw_decode":           true,
+		"restart_on_activate": false,
+		"close_when_inactive": false,
+		"clear_on_media_end":  true,
+		"reconnect_delay_sec": 1,
+		"buffering_mb":        0,                                 // no extra network buffer
+		"ffmpeg_options":      "fflags=nobuffer flags=low_delay", // show frames as soon as they arrive (OBS 29.1+)
+	}
+	return c.ensureInput(inputName, "ffmpeg_source", settings)
+}
+
+// EnsurePhoneCamera creates (or updates) the studio's browser source for one
+// phone camera, inside the "Van Link" scene. The page at url receives the
+// phone's picture and sound; its sound goes to OBS's audio mixer.
+func (c *Client) EnsurePhoneCamera(inputName, url string) error {
+	return c.ensureInput(inputName, "browser_source", map[string]any{
+		"url":                 url,
+		"is_local_file":       false,
+		"width":               1920,
+		"height":              1080,
+		"fps_custom":          true,
+		"fps":                 30,
+		"reroute_audio":       true,  // "Control audio via OBS"
+		"shutdown":            false, // keep receiving when not shown
+		"restart_when_active": false,
+	})
+}
+
+// ensureInput creates inputName in the "Van Link" scene, or updates its
+// settings if it already exists.
+func (c *Client) ensureInput(inputName, kind string, settings map[string]any) error {
 	var scenes struct {
 		Scenes []struct {
 			Name string `json:"sceneName"`
@@ -62,18 +97,6 @@ func (c *Client) EnsureReceiver(inputName, url string) error {
 			return err
 		}
 	}
-	settings := map[string]any{
-		"is_local_file":       false,
-		"input":               url,
-		"input_format":        "mpegts",
-		"hw_decode":           true,
-		"restart_on_activate": false,
-		"close_when_inactive": false,
-		"clear_on_media_end":  true,
-		"reconnect_delay_sec": 1,
-		"buffering_mb":        0,                                 // no extra network buffer
-		"ffmpeg_options":      "fflags=nobuffer flags=low_delay", // show frames as soon as they arrive (OBS 29.1+)
-	}
 	var inputs struct {
 		Inputs []struct {
 			Name string `json:"inputName"`
@@ -90,7 +113,7 @@ func (c *Client) EnsureReceiver(inputName, url string) error {
 		}
 	}
 	return c.Call("CreateInput", map[string]any{
-		"sceneName": SceneName, "inputName": inputName, "inputKind": "ffmpeg_source",
+		"sceneName": SceneName, "inputName": inputName, "inputKind": kind,
 		"inputSettings": settings, "sceneItemEnabled": true,
 	}, nil)
 }

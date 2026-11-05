@@ -243,6 +243,31 @@ $start = $user ? 'account.php' : 'signup.php';
     </div>
   </section>
 
+  <!-- ============ PHONE CAMERAS ============ -->
+  <section id="phone">
+    <h2>Turn any phone into a live camera</h2>
+    <div class="two">
+      <div>
+        <p>Add extra angles from the crowd, the touchline or the stage with the phones you already have. The studio clicks <b>Add a phone camera</b> in Van Link and sends the link on WhatsApp. The phone opens it, allows the camera, and its picture and sound appear in OBS as their own source.</p>
+        <ul>
+          <li><b>iPhone and Android:</b> works in the phone's browser, nothing to install. Android phones can also use the Van Link Camera app.</li>
+          <li><b>Direct and encrypted:</b> the picture goes straight from the phone to the studio's OBS.</li>
+          <li><b>ON AIR light:</b> the phone shows a red light when the studio puts it on Program.</li>
+          <li>Front or back camera, mic on or off, 480p, 720p or 1080p.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Get the camera on your phone</h3>
+        <p style="margin-bottom:14px">Use the camera code the studio sent you.</p>
+        <p style="display:flex;flex-direction:column;gap:10px">
+          <a class="btn big" href="camera-app.php">Download the Android app (APK)</a>
+          <a class="btn ghost big" href="camera.php">Open the camera in the browser (iPhone and Android)</a>
+        </p>
+        <p style="font-size:14px;margin-top:12px">Installing the APK: open the downloaded file and allow "Install unknown apps" for your browser when Android asks.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ WHO ============ -->
   <section>
     <h2>Who is it for?</h2>

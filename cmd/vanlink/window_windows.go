@@ -28,7 +28,7 @@ func runUI(url string, show <-chan struct{}, quit <-chan struct{}, background bo
 				AutoFocus: true,
 				DataPath:  dataDir,
 				WindowOptions: webview2.WindowOptions{
-					Title:  "Van Link – Gaz Media Productions",
+					Title:  "Van Link",
 					Width:  1100,
 					Height: 820,
 					IconId: 1, // the icon built into VanLink.exe
