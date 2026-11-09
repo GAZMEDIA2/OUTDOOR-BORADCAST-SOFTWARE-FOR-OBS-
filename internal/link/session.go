@@ -129,6 +129,8 @@ func New(cfg Config) (*Session, error) {
 			return nil, err
 		}
 	}
+	bigBuffers(conn)
+	bigBuffers(obs)
 	s := &Session{
 		cfg: cfg, key: c.KeyBytes(), sid: c.SessionBytes(),
 		conn: conn, obs: obs,
@@ -136,6 +138,18 @@ func New(cfg Config) (*Session, error) {
 		done:     make(chan struct{}),
 	}
 	return s, nil
+}
+
+// socketBuffer is how much video a socket can hold while Van Link is busy.
+// Windows gives UDP sockets only about 64 KB by default: one keyframe burst
+// from OBS (or SRT re-sending a lost stretch after a 5G or Starlink hiccup)
+// overflows that, the extra packets are thrown away, and the picture breaks
+// up and freezes. 8 MB holds several seconds of HD video.
+const socketBuffer = 8 << 20
+
+func bigBuffers(c *net.UDPConn) {
+	_ = c.SetReadBuffer(socketBuffer)
+	_ = c.SetWriteBuffer(socketBuffer)
 }
 
 // Start runs the engine and gathers addresses (including the public IPv4

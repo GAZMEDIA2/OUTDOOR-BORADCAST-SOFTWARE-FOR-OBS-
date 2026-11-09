@@ -103,7 +103,7 @@ body.dock .card{padding:12px}
 </div>
 <div>
 <label for="sLat">Delay buffer (studio decides; the van follows)</label>
-<select id="sLat"><option value="300">Short – 0.3 s (strong, stable internet)</option><option value="1000">Normal – 1 s (recommended)</option><option value="2000">Safe – 2 s (mobile data, weak signal)</option><option value="4000">Extra safe – 4 s</option></select>
+<select id="sLat"><option value="300">Short – 0.3 s (strong, stable internet)</option><option value="1000">Normal – 1 s (recommended)</option><option value="2000">Safe – 2 s (4G/5G, Starlink, weak signal)</option><option value="4000">Extra safe – 4 s</option></select>
 <label><input id="sStun" type="checkbox" style="width:auto"> Allow the public address check</label>
 <p class="sub">A few bytes asking "what is my internet address?". Needed for direct dialling over IPv4. Video never goes through it.</p>
 <div class="row" style="margin-top:12px"><button class="primary" data-act="saveSettings">Save</button><span class="msg" id="sMsg"></span></div>
@@ -340,7 +340,10 @@ function studioMon(v) {
   else if (p.live) b = ["warn","The van is sending – waiting for the picture…"];
   else b = ["idle","Van connected · not sending yet"];
   if (!(s.connected && s.liveHere)) since(v.id, false);
-  return `<div class="banner ${b[0]}"><span class="dot"></span>${esc(b[1])}</div>
+  let tip = "";
+  if (s.connected && s.liveHere && s.recLatencyMs > S.settings.latencyMs)
+    tip = `<div class="hint" style="margin-top:10px"><b>Picture breaking up or freezing?</b> This link needs a bigger delay buffer (about ${(s.recLatencyMs/1000).toFixed(1)} s). Go to Settings › Delay buffer, choose a bigger one, click Save, then remove this van and add it again so it gets a new code.</div>`;
+  return `<div class="banner ${b[0]}"><span class="dot"></span>${esc(b[1])}</div>${tip}
   <div class="grid2" style="margin-top:10px">
    <div class="side"><h3>${esc(p.n || v.name)} (sending)</h3>
     <div class="kv"><span>Signal</span><span>${bars(s.connected ? p.sig : 0)}${esc(s.connected ? s.peerSignalWord : "—")}</span></div>
