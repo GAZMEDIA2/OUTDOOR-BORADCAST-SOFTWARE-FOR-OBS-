@@ -88,7 +88,7 @@ func RunTest(allowSTUN bool, servers []string) TestResult {
 		r.Summary = "Good: this connection allows direct dialling over IPv4."
 	case r.Gate == "strict":
 		r.Verdict = "limited"
-		r.Summary = "Limited: this network is strict. Van Link will still connect if the other end has IPv6, a public address, or a relaxed network."
+		r.Summary = "Limited: this network is strict. Van Link connects directly if the other end has IPv6, a public address, or a relaxed network; otherwise it uses the Van Link relay."
 	case r.PublicIPv4 == "" && r.IPv6Address == "":
 		r.Verdict = "limited"
 		r.Summary = "No internet connection was detected."
@@ -100,7 +100,7 @@ func RunTest(allowSTUN bool, servers []string) TestResult {
 		r.Advice = append(r.Advice, "If your internet provider or router offers IPv6, turning it on makes Van Link connect more reliably.")
 	}
 	if r.Gate == "strict" {
-		r.Advice = append(r.Advice, "Strict networks are common on mobile data. Starlink or a fixed line at the other end usually solves it.")
+		r.Advice = append(r.Advice, "Strict networks are common on mobile data, Starlink and some fibre. If the other end is strict too, keep \"Use the Van Link relay\" switched on in Settings.")
 	}
 	return r
 }

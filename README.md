@@ -33,7 +33,9 @@ Van Link tries every direct route automatically and uses the best one:
 | IPv4 direct (simultaneous dialling) | Most home, fibre, Starlink and many mobile networks |
 | Studio reachable | The studio has a public IP or open port: the van connects with the studio code alone |
 
-If both ends are on the strictest kind of network, no direct route exists. The network test in Settings shows this in advance.
+If both ends are on the strictest kind of network, no direct route exists. Van Link then uses the **Van Link relay** (`relay.vanlink.gazgoc.com.ng`, UDP 47800) automatically: it passes the still-encrypted packets between the two ends and only serves computers with a valid licence. A direct route is always preferred, and Van Link keeps trying one while on the relay. It can be switched off in Settings.
+
+Relay server: `cmd/vanlink-relay`. Install or update it on a Linux server with `scripts/install-relay.sh` (published on the `downloads` branch as `relay/install.sh`).
 
 The only outside service Van Link may contact is a public "what is my address?" check (STUN), a few bytes when pairing. Video never passes through it, and it can be switched off in Settings.
 

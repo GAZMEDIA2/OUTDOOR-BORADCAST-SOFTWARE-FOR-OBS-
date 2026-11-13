@@ -26,7 +26,7 @@ import (
 )
 
 // Version of Van Link.
-var Version = "0.3.1"
+var Version = "0.4.0"
 
 // App is the running program.
 type App struct {
@@ -143,6 +143,7 @@ func (a *App) startStudioVan(v VanEntry) error {
 		Role: link.Studio, Name: code.Name, StudioCode: code,
 		OBSAddr:    netip.AddrPortFrom(netip.MustParseAddr("127.0.0.1"), uint16(v.OBSPort)),
 		ListenPort: v.LinkPort, UseSTUN: cfg.UseSTUN,
+		Relay: a.relayAddr(), RelayLicence: a.relayLicence,
 		Logf: func(f string, x ...any) { a.logf(v.Name+": "+f, x...) },
 	})
 	if err != nil {
@@ -294,13 +295,15 @@ func (a *App) pairVan(text string) (string, error) {
 		Role: link.Van, Name: name, StudioCode: sc,
 		OBSAddr:    netip.AddrPortFrom(netip.MustParseAddr("127.0.0.1"), vanOBSPort),
 		ListenPort: cfg.VanPort, UseSTUN: cfg.UseSTUN,
+		Relay: a.relayAddr(), RelayLicence: a.relayLicence,
 		Logf: func(f string, x ...any) { a.logf("van: "+f, x...) },
 	})
 	if err != nil && cfg.VanPort != 0 { // saved port taken: use any
 		sess, err = link.New(link.Config{
 			Role: link.Van, Name: name, StudioCode: sc,
 			OBSAddr: netip.AddrPortFrom(netip.MustParseAddr("127.0.0.1"), vanOBSPort),
-			UseSTUN: cfg.UseSTUN, Logf: func(f string, x ...any) { a.logf("van: "+f, x...) },
+			UseSTUN: cfg.UseSTUN, Relay: a.relayAddr(), RelayLicence: a.relayLicence,
+			Logf: func(f string, x ...any) { a.logf("van: "+f, x...) },
 		})
 	}
 	if err != nil {
@@ -582,6 +585,7 @@ type State struct {
 	Settings struct {
 		LatencyMS int  `json:"latencyMs"`
 		UseSTUN   bool `json:"useStun"`
+		UseRelay  bool `json:"useRelay"`
 	} `json:"settings"`
 	Setup struct {
 		Supported bool `json:"supported"`
@@ -607,7 +611,7 @@ func (a *App) State() State {
 	cfg := a.store.get()
 	var s State
 	s.Version, s.Role, s.Name = Version, cfg.Role, cfg.Name
-	s.Settings.LatencyMS, s.Settings.UseSTUN = cfg.LatencyMS, cfg.UseSTUN
+	s.Settings.LatencyMS, s.Settings.UseSTUN, s.Settings.UseRelay = cfg.LatencyMS, cfg.UseSTUN, !cfg.NoRelay
 	s.Setup.Supported, s.Setup.Done = sys.Supported(), cfg.SetupDone
 	s.OBS.Addr, s.OBS.HasPass, s.OBS.Manual = cfg.OBSAddr, cfg.OBSPassword != "", cfg.OBSManual
 	a.mu.Lock()
@@ -680,6 +684,7 @@ type SettingsUpdate struct {
 	OBSManual   *bool   `json:"obsManual"`
 	LatencyMS   *int    `json:"latencyMs"`
 	UseSTUN     *bool   `json:"useStun"`
+	UseRelay    *bool   `json:"useRelay"`
 }
 
 // UpdateSettings saves settings; OBS reconnects with the new details.
@@ -705,6 +710,9 @@ func (a *App) UpdateSettings(u SettingsUpdate) error {
 		}
 		if u.UseSTUN != nil {
 			c.UseSTUN = *u.UseSTUN
+		}
+		if u.UseRelay != nil {
+			c.NoRelay = !*u.UseRelay
 		}
 	})
 	if u.OBSAddr != nil || u.OBSPassword != nil || u.OBSManual != nil {

@@ -4,7 +4,7 @@
 # (x86_64-w64-mingw32-windres) for the Windows icon.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-VERSION="${VERSION:-0.3.1}"
+VERSION="${VERSION:-0.4.0}"
 LDFLAGS="-s -w -X main.version=${VERSION}"
 mkdir -p dist
 
@@ -31,5 +31,10 @@ GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags "${LDFLAGS}" -o dist/vanlin
 
 echo "== Linux"
 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "${LDFLAGS}" -o dist/vanlink-linux-x64 ./cmd/vanlink
+
+echo "== Relay server (Linux)"
+for arch in amd64 arm64; do
+  CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build -trimpath -ldflags "${LDFLAGS}" -o dist/vanlink-relay-linux-$arch ./cmd/vanlink-relay
+done
 
 ls -lh dist
