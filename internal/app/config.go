@@ -16,6 +16,7 @@ type Config struct {
 	OBSManual   bool   `json:"obsManual"` // false = connect to OBS automatically
 	LatencyMS   int    `json:"latencyMs"`
 	UseSTUN     bool   `json:"useStun"`
+	NoRelay     bool   `json:"noRelay"` // true = never use the Van Link relay
 
 	// Studio: one entry per van.
 	Vans []VanEntry `json:"vans"`

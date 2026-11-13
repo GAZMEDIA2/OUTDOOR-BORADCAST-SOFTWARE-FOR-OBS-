@@ -106,6 +106,8 @@ body.dock .card{padding:12px}
 <select id="sLat"><option value="300">Short – 0.3 s (strong, stable internet)</option><option value="1000">Normal – 1 s (recommended)</option><option value="2000">Safe – 2 s (mobile data, weak signal)</option><option value="4000">Extra safe – 4 s</option></select>
 <label><input id="sStun" type="checkbox" style="width:auto"> Allow the public address check</label>
 <p class="sub">A few bytes asking "what is my internet address?". Needed for direct dialling over IPv4. Video never goes through it.</p>
+<label><input id="sRelay" type="checkbox" style="width:auto"> Use the Van Link relay when there is no direct route</label>
+<p class="sub">Some networks (for example when both ends use Starlink or fibre/mobile with shared addresses) can't reach each other directly. The video then goes through the Van Link relay, still encrypted end to end. A direct route is always used when there is one. Takes effect after restarting Van Link.</p>
 <div class="row" style="margin-top:12px"><button class="primary" data-act="saveSettings">Save</button><span class="msg" id="sMsg"></span></div>
 </div>
 </div>
@@ -452,6 +454,7 @@ function fillSettings() {
   $("#sLat").value = String(S.settings.latencyMs);
   if ($("#sLat").value !== String(S.settings.latencyMs)) { const o=document.createElement("option"); o.value=o.textContent=S.settings.latencyMs; $("#sLat").append(o); $("#sLat").value=String(S.settings.latencyMs); }
   $("#sStun").checked = S.settings.useStun;
+  $("#sRelay").checked = S.settings.useRelay;
   $("#ver").textContent = S.version;
   $("#acct").innerHTML = accountSettings();
   $("#sLat").disabled = S.role === "van";
@@ -512,7 +515,7 @@ document.addEventListener("click", async e => {
       case "copy": { const t = $("#"+el.dataset.src); t.select(); try { await navigator.clipboard.writeText(t.value); } catch { document.execCommand("copy"); } const label = el.textContent; el.textContent = "Copied"; setTimeout(() => el.textContent = label, 2000); return; }
       case "closeSettings": showSettings = false; break;
       case "saveSettings": {
-        const body = {name: $("#sName").value, obsAddr: $("#sObsAddr").value, useStun: $("#sStun").checked, obsManual: !$("#sObsAuto").checked};
+        const body = {name: $("#sName").value, obsAddr: $("#sObsAddr").value, useStun: $("#sStun").checked, useRelay: $("#sRelay").checked, obsManual: !$("#sObsAuto").checked};
         if (S.role !== "van") body.latencyMs = +$("#sLat").value;
         if ($("#sObsPass").value) body.obsPassword = $("#sObsPass").value;
         await api("/api/settings", body); $("#sMsg").className = "msg ok"; $("#sMsg").textContent = "Saved";

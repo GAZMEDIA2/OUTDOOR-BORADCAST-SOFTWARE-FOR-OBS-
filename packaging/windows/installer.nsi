@@ -3,7 +3,7 @@ Unicode true
 !include "MUI2.nsh"
 
 !ifndef VERSION
-  !define VERSION "0.3.1"
+  !define VERSION "0.4.0"
 !endif
 !define APP "Van Link"
 !define COMPANY "Van Link"

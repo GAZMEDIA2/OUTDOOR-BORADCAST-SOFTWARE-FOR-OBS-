@@ -17,6 +17,7 @@ import (
 
 	"github.com/GAZMEDIA2/vanlink/internal/netx"
 	"github.com/GAZMEDIA2/vanlink/internal/pairing"
+	"github.com/GAZMEDIA2/vanlink/internal/relay"
 )
 
 // Role of this end.
@@ -42,6 +43,14 @@ type Config struct {
 	ListenPort  int      // 0 = any free port
 	UseSTUN     bool     // learn the public IPv4 address (needed for IPv4 hole punching)
 	STUNServers []string // default netx.DefaultSTUNServers
+
+	// Relay (host:port) carries the link when no direct route works, e.g.
+	// when both ends are behind carrier-grade NAT. "" = no relay.
+	// RelayLicence gives this computer's current signed licence, which the
+	// relay checks.
+	Relay        string
+	RelayLicence func() string
+	RelayAfter   time.Duration // how long to try direct routes first (default 5 s)
 
 	Logf func(format string, args ...any)
 }
@@ -72,6 +81,9 @@ type Session struct {
 	events        []Event
 	stunWait      map[[12]byte]chan netip.AddrPort
 	closed        bool
+	relayAddr     netip.AddrPort // resolved relay address
+	relayOK       time.Time      // last time the relay accepted us
+	relayRefused  bool
 
 	meter    srtMeter
 	disabled atomic.Bool // licence lock: video is not carried while set
@@ -106,6 +118,9 @@ func New(cfg Config) (*Session, error) {
 	}
 	if cfg.STUNServers == nil {
 		cfg.STUNServers = netx.DefaultSTUNServers
+	}
+	if cfg.RelayAfter == 0 {
+		cfg.RelayAfter = 5 * time.Second
 	}
 	c := cfg.StudioCode
 	if len(c.KeyBytes()) != 32 || len(c.SessionBytes()) != 8 {
@@ -303,6 +318,15 @@ func (s *Session) readPeer() {
 		if len(pkt) < 2 || pkt[0] != magic {
 			continue
 		}
+		if pkt[1] == relay.TReply {
+			s.mu.Lock()
+			fromRelay := from == s.relayAddr
+			s.mu.Unlock()
+			if ok, isReply := relay.ParseReply(pkt, s.sid); isReply && fromRelay {
+				s.relayAnswer(ok, now)
+			}
+			continue
+		}
 		if pkt[1] == tData {
 			s.mu.Lock()
 			ok := from == s.peer
@@ -368,6 +392,11 @@ func (s *Session) adopt(from netip.AddrPort, now time.Time) {
 	case !cur.IsValid() || silent:
 		s.peer = from
 	case from == cur:
+	case cur == s.relayAddr && from != s.relayAddr:
+		s.peer = from // a direct route always beats the relay
+	case from == s.relayAddr:
+		s.mu.Unlock()
+		return // never leave a working direct route for the relay
 	case from.Addr().Is6() && !from.Addr().IsPrivate() && cur.Addr().Is4():
 		s.peer = from
 	default:
@@ -377,26 +406,88 @@ func (s *Session) adopt(from netip.AddrPort, now time.Time) {
 	changed := s.peer != cur
 	s.peerSeen = now
 	if changed {
-		s.route = routeName(s.peer.Addr())
+		name := s.routeNameLocked(from)
+		s.route = name
 		if s.connectedAt.IsZero() {
 			s.connectedAt = now
 		}
 		if s.everConnected && !cur.IsValid() || s.everConnected && silent {
 			s.mu.Unlock()
-			s.event("Reconnected (" + routeName(from.Addr()) + ")")
+			s.event("Reconnected (" + name + ")")
 			return
 		}
 		first := !s.everConnected
 		s.everConnected = true
 		s.mu.Unlock()
-		if first {
-			s.event("Connected directly (" + routeName(from.Addr()) + ")")
-		} else {
-			s.event("Switched to a better route (" + routeName(from.Addr()) + ")")
+		switch {
+		case first && from == s.relayAddr:
+			s.event("Connected through the Van Link relay (no direct route between these networks)")
+		case first:
+			s.event("Connected directly (" + name + ")")
+		default:
+			s.event("Switched to a better route (" + name + ")")
 		}
 		return
 	}
 	s.mu.Unlock()
+}
+
+func (s *Session) routeNameLocked(ap netip.AddrPort) string {
+	if s.relayAddr.IsValid() && ap == s.relayAddr {
+		return "Van Link relay"
+	}
+	return routeName(ap.Addr())
+}
+
+// relayAnswer records the relay's reply to our registration.
+func (s *Session) relayAnswer(ok bool, now time.Time) {
+	s.mu.Lock()
+	first := ok && s.relayOK.IsZero()
+	refusedNow := !ok && !s.relayRefused
+	if ok {
+		s.relayOK, s.relayRefused = now, false
+	} else {
+		s.relayRefused = true
+	}
+	s.mu.Unlock()
+	if first {
+		s.event("Van Link relay ready as a backup route")
+	}
+	if refusedNow {
+		s.event("The Van Link relay refused this computer (sign in again or check the licence)")
+	}
+}
+
+// relayTick registers with the relay (every 2 s) and says whether probes
+// should also go through it: only once direct routes have had their chance.
+func (s *Session) relayTick(now time.Time, up bool, dialSince time.Time, tick int) (netip.AddrPort, bool) {
+	lic := ""
+	if s.cfg.RelayLicence != nil {
+		lic = s.cfg.RelayLicence()
+	}
+	if s.cfg.Relay == "" || lic == "" {
+		return netip.AddrPort{}, false
+	}
+	s.mu.Lock()
+	ra := s.relayAddr
+	s.mu.Unlock()
+	// Look the relay's name up every 2 s until found, then every minute.
+	if !ra.IsValid() && tick%8 == 0 || tick%240 == 0 {
+		go func() {
+			if a, err := netx.ResolveUDP("udp4", s.cfg.Relay); err == nil {
+				s.mu.Lock()
+				s.relayAddr = netip.AddrPortFrom(a.Addr().Unmap(), a.Port())
+				s.mu.Unlock()
+			}
+		}()
+	}
+	if !ra.IsValid() {
+		return netip.AddrPort{}, false
+	}
+	if tick%8 == 0 {
+		s.writeTo(relay.JoinPacket(s.sid, s.cfg.Role == Studio, lic), ra)
+	}
+	return ra, !up && now.Sub(dialSince) >= s.cfg.RelayAfter
 }
 
 func routeName(a netip.Addr) string {
@@ -475,6 +566,7 @@ func (s *Session) loop() {
 	var tick int
 	lastSTUN := time.Now()
 	wasUp := false
+	dialSince := time.Now() // when we started trying to reach the other side
 	for {
 		select {
 		case <-s.done:
@@ -494,7 +586,12 @@ func (s *Session) loop() {
 				s.mu.Unlock()
 				s.event("Connection lost - reconnecting...")
 			}
+			if up {
+				dialSince = now
+			}
 			wasUp = up
+			ra, viaRelay := s.relayTick(now, up, dialSince, tick)
+			onRelay := ra.IsValid() && peer == ra
 
 			// Dial: every 250 ms until connected, then lightly every 2 s so a
 			// better route (or a changed address) is still found.
@@ -506,6 +603,18 @@ func (s *Session) loop() {
 				}
 				if peer.IsValid() {
 					s.writeTo(p, peer)
+				}
+				if viaRelay && peer != ra {
+					s.writeTo(p, ra)
+				}
+			}
+			// On the relay: keep trying the direct routes every second so the
+			// link moves off the relay as soon as one opens.
+			if onRelay && up && tick%4 == 2 {
+				binary.BigEndian.PutUint64(nonce, uint64(now.UnixNano()))
+				p := seal(s.key, s.sid, tProbe, nonce)
+				for _, c := range cands {
+					s.writeTo(p, c)
 				}
 			}
 			// Status every second.
